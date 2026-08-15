@@ -33,3 +33,6 @@ validation/results/*
 
 # External course/reference repositories
 upstream/
+
+# Generated homework submission packages
+*_Week*.zip
