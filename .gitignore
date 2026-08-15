@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Logs and generated results
+*.log
+validation/logs/*
+validation/results/*
+
+# PostgreSQL/local database artifacts
+*.sql.log
+*.dump
+*.backup
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# External course/reference repositories
+upstream/
