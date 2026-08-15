@@ -4,12 +4,11 @@
 --
 -- Query 2: Cumulative actors table generation
 --
--- Usage with psql:
+-- Example processing window:
+--   Previous cumulative snapshot: 2020
+--   Incoming source year:         2021
 --
---   psql \
---     -v previous_year=1970 \
---     -v current_year=1971 \
---     -f query_2.sql
+-- To process another year, update the previous/current year predicates.
 --
 -- Purpose:
 --   Generate one actor snapshot year by combining:
