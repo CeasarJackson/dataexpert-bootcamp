@@ -217,4 +217,3 @@ Synthetic test results:
 
 This confirms both the defensive NULL-rating behavior and preservation of the
 strict A-grade threshold rules.
-
