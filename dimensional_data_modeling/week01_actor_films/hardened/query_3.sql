@@ -2,14 +2,14 @@
 -- DataExpert Intermediate Data Engineering Boot Camp
 -- Dimensional Data Modeling - Week 1
 --
--- Query 3: Actors History SCD Type 2 DDL
+-- Hardened Query 3: Actors History SCD Type 2 DDL
 --
 -- Purpose:
---   Track changes to an actor's quality_class and is_active dimensions
---   without overwriting historical states.
+--   Track changes to quality_class and is_active while preserving historical
+--   states and strengthening schema-level validation and access paths.
 --
 -- Grain:
---   One row per actor per continuous dimensional state within an SCD snapshot.
+--   One row per actor per continuous state within an SCD snapshot.
 --
 -- Temporal fields:
 --   start_date   - first year the state became valid
@@ -35,11 +35,26 @@ CREATE TABLE actors_history_scd (
     end_date      INTEGER NOT NULL,
     current_year  INTEGER NOT NULL,
 
-    PRIMARY KEY (
+    CONSTRAINT actors_history_scd_pkey
+        PRIMARY KEY (
+            actorid,
+            start_date,
+            current_year
+        ),
+
+    CONSTRAINT actors_history_scd_valid_date_range
+        CHECK (end_date >= start_date)
+);
+
+CREATE INDEX idx_actors_history_scd_actor_snapshot
+    ON actors_history_scd (
+        actorid,
+        current_year
+    );
+
+CREATE INDEX idx_actors_history_scd_actor_interval
+    ON actors_history_scd (
         actorid,
         start_date,
-        current_year
-    ),
-
-    CHECK (end_date >= start_date)
-);
+        end_date
+    );
