@@ -217,3 +217,81 @@ Synthetic test results:
 
 This confirms both the defensive NULL-rating behavior and preservation of the
 strict A-grade threshold rules.
+
+## Phase 5 — Rating Precision Hardening
+
+The hardened `film_struct.rating` field was migrated from PostgreSQL `REAL`
+to `DOUBLE PRECISION`.
+
+### Precision Analysis
+
+The source course dataset stores `actor_films.rating` as `REAL`. Three
+aggregation representations were evaluated:
+
+- `REAL`
+- `DOUBLE PRECISION`
+- `NUMERIC`
+
+Across 105,026 actor-year rating groups:
+
+- REAL vs DOUBLE PRECISION classification differences: 0
+- REAL vs NUMERIC classification differences: 58
+- maximum REAL vs DOUBLE PRECISION average difference: 0
+- maximum REAL vs NUMERIC average difference: approximately
+  0.0000003814697300
+
+The 58 NUMERIC classification changes occurred at strict quality boundaries:
+
+- `average` -> `bad`: 35 actor-year groups
+- `good` -> `average`: 23 actor-year groups
+
+These differences occur because historical REAL values can evaluate slightly
+above exact threshold values such as 6.0 or 7.0, while conversion to NUMERIC
+produces the exact decimal boundary.
+
+### Decision
+
+`DOUBLE PRECISION` was selected for the hardened dimensional representation.
+
+This choice:
+
+1. provides a wider floating-point representation than `REAL`
+2. preserves all existing quality classifications
+3. does not manufacture decimal precision absent from the source data
+4. avoids the 58 business-classification changes observed with NUMERIC
+
+The strict graded threshold semantics remain unchanged:
+
+- `star` when average rating is greater than 8
+- `good` when average rating is greater than 7
+- `average` when average rating is greater than 6
+- `bad` otherwise
+
+### Regression Validation
+
+The complete cumulative actors dimension was rebuilt from 1970 through 2021
+using the DOUBLE PRECISION `film_struct.rating`.
+
+Actor-state reconciliation against the pre-change Phase 5 baseline:
+
+- current-only rows: 0
+- baseline-only rows: 0
+
+Film-level reconciliation, including actor, year, array position, film,
+votes, rating, and film identifier:
+
+- current-only film rows: 0
+- baseline-only film rows: 0
+- cumulative film rows compared: 3,136,426
+
+Additional structural validation preserved:
+
+- 249,082 actor-year snapshots
+- 9,447 distinct actors
+- zero duplicate `(actorid, current_year)` rows
+- zero required-field NULLs
+- 119,331 SCD rows
+- zero invalid SCD date ranges
+- zero overlapping SCD intervals
+
+The original graded submission remains unchanged.

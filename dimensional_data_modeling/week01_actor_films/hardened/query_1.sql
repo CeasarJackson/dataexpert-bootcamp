@@ -17,9 +17,14 @@
 --   - Primary key protects actor/year uniqueness.
 --   - Supporting index favors annual snapshot access patterns.
 --
--- Preserved behavior:
---   - rating remains REAL during this phase.
---   - quality_class thresholds are unchanged.
+-- Rating precision policy:
+--   - film_struct.rating uses DOUBLE PRECISION rather than REAL.
+--   - The source actor_films.rating column remains REAL in the course dataset.
+--   - This change therefore avoids constraining the hardened dimensional
+--     representation to REAL without manufacturing precision absent upstream.
+--   - NUMERIC was evaluated and rejected because it changes established
+--     quality classifications at strict threshold boundaries.
+--   - quality_class threshold semantics remain unchanged.
 -- =============================================================================
 
 DROP TABLE IF EXISTS actors CASCADE;
@@ -29,7 +34,7 @@ DROP TYPE IF EXISTS quality_class CASCADE;
 CREATE TYPE film_struct AS (
     film   TEXT,
     votes  INTEGER,
-    rating REAL,
+    rating DOUBLE PRECISION,
     filmid TEXT
 );
 
