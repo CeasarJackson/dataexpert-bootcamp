@@ -26,10 +26,50 @@
 --   Changed actors     -> previous interval closed and new interval created.
 --   New actors         -> new interval begins in current_year.
 --
+-- Incremental-year contract:
+--   current_year must equal previous_year + 1. Non-adjacent processing windows
+--   fail before the target snapshot is modified.
+--
 -- Rerun policy:
 --   The target current_year SCD snapshot is replaced transactionally. A failure
 --   rolls back both the DELETE and INSERT.
 -- =============================================================================
+
+\if :{?previous_year}
+\else
+    \echo 'ERROR: required psql variable previous_year was not provided'
+    \quit 3
+\endif
+
+\if :{?current_year}
+\else
+    \echo 'ERROR: required psql variable current_year was not provided'
+    \quit 3
+\endif
+
+-- ---------------------------------------------------------------------------
+-- Incremental-year contract validation
+-- ---------------------------------------------------------------------------
+--
+-- This algorithm models exactly one annual transition. Evaluate the contract
+-- before BEGIN so an invalid processing window cannot modify target state.
+SELECT
+    (
+        :'current_year'::INTEGER
+        =
+        :'previous_year'::INTEGER + 1
+    ) AS incremental_year_contract_ok
+\gset
+
+\if :incremental_year_contract_ok
+\else
+    \echo 'ERROR: current_year must equal previous_year + 1'
+
+    -- Deliberately raise a SQL error so ON_ERROR_STOP=1 causes psql to
+    -- terminate with a nonzero exit status. PostgreSQL 14 psql does not
+    -- support supplying an exit code argument to \quit.
+    SELECT 1 / 0 AS invalid_incremental_year_window;
+\endif
 
 BEGIN;
 

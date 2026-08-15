@@ -295,3 +295,84 @@ Additional structural validation preserved:
 - zero overlapping SCD intervals
 
 The original graded submission remains unchanged.
+
+## Phase 6 — SCD Boundary and Incremental Contract Hardening
+
+The Type 2 SCD implementation was hardened around explicit interval boundaries,
+missing-year behavior, idempotent backfills, and incremental processing
+contracts.
+
+### Full Backfill Boundary Policy
+
+`query_4.sql` now explicitly starts a new SCD streak when:
+
+1. an actor is first observed
+2. `quality_class` changes
+3. `is_active` changes
+4. the annual actor-snapshot sequence contains a gap
+
+A missing annual snapshot is therefore not represented as though the preceding
+state were known to remain continuously valid across the missing period.
+
+The current course dataset contains no actor-year snapshot gaps, so the hardened
+logic remains equivalent to the graded result on the supplied data.
+
+### Full Backfill Rerun Policy
+
+The latest SCD snapshot is transactionally replaced:
+
+1. `BEGIN`
+2. delete the existing latest SCD snapshot
+3. rebuild the snapshot from cumulative actor history
+4. `COMMIT`
+
+Validated behavior:
+
+- first hardened backfill: 119,331 rows
+- second hardened backfill: 119,331 rows
+- differences versus the Phase 6 full-backfill baseline: 0
+- invalid SCD ranges: 0
+- overlapping SCD intervals: 0
+
+### Incremental-Year Contract
+
+`query_5.sql` explicitly requires:
+
+    current_year = previous_year + 1
+
+The incremental algorithm models exactly one annual transition and rejects
+non-adjacent processing windows before target-state modification.
+
+For PostgreSQL 14 `psql`, the invalid-window branch deliberately raises a SQL
+error under `ON_ERROR_STOP=1` so orchestration receives a nonzero exit status.
+
+Invalid test window:
+
+    previous_year = 2019
+    current_year  = 2021
+
+Validation:
+
+- invalid window rejected
+- `psql` exit code: 3
+- 2021 snapshot differences after rejection: 0
+
+### Incremental Positive Control
+
+The valid transition:
+
+    2020 -> 2021
+
+produced:
+
+- 116,549 rows in the 2020 SCD snapshot
+- 119,331 rows in the 2021 SCD snapshot
+- 9,447 actors represented in 2021
+- zero differences versus the full 2021 backfill baseline
+
+A second execution of the valid incremental transition deleted and rebuilt the
+same 119,331-row target snapshot successfully.
+
+### Preservation
+
+The original graded Week 1 SQL under `../submission/` remains unchanged.
