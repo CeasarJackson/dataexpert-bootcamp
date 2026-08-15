@@ -91,4 +91,3 @@ If generation fails, PostgreSQL rolls back the transaction, preventing a
 partially deleted or partially rebuilt snapshot.
 
 The graded submission under `../submission/` remains unchanged.
-
