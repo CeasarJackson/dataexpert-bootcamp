@@ -36,3 +36,6 @@ upstream/
 
 # Generated homework submission packages
 *_Week*.zip
+
+# Extracted/generated homework submission folders
+fact_data_modeling/week02_devices_events/CeasarJackson_Fact_Data_Modeling_Week2/
