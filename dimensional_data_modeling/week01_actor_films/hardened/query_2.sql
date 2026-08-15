@@ -2,71 +2,97 @@
 -- DataExpert Intermediate Data Engineering Boot Camp
 -- Dimensional Data Modeling - Week 1
 --
--- Query 2: Cumulative actors table generation
---
--- Example processing window:
---   Previous cumulative snapshot: 2020
---   Incoming source year:         2021
---
--- To process another year, update the previous/current year predicates.
+-- Hardened Query 2: Parameterized cumulative actors generation
 --
 -- Purpose:
---   Generate one actor snapshot year by combining:
+--   Generate one cumulative actor snapshot from the immediately preceding
+--   annual snapshot.
 --
---     1. the previous cumulative actor snapshot
---     2. films released during the incoming year
+-- Runtime parameters:
+--   previous_year - existing cumulative snapshot year
+--   current_year  - incoming actor_films source year / target snapshot year
 --
--- Notes:
---   - Existing actors retain their historical film arrays.
---   - New films are appended to the cumulative array.
---   - quality_class is recalculated only when an actor releases films.
---   - Inactive actors retain their most recent quality_class.
+-- Example:
+--   psql \
+--     -v previous_year=2020 \
+--     -v current_year=2021 \
+--     -f query_2.sql
+--
+-- Grain:
+--   One row per actorid per current_year.
+--
+-- Rerun policy:
+--   The target current_year snapshot is replaced transactionally. If generation
+--   fails, PostgreSQL rolls back both the DELETE and INSERT.
+--
+-- Preserved graded behavior:
+--   - Existing actors retain cumulative film history.
+--   - Incoming films are appended to existing film arrays.
+--   - quality_class is recalculated only for actors with films this year.
+--   - Inactive actors retain their prior quality_class.
 -- =============================================================================
 
-WITH last_year AS (
+BEGIN;
+
+DELETE FROM actors
+WHERE current_year = :'current_year'::INTEGER;
+
+WITH params AS (
 
     SELECT
-        actor,
-        actorid,
-        films,
-        quality_class,
-        is_active,
-        current_year
+        :'previous_year'::INTEGER AS previous_year,
+        :'current_year'::INTEGER AS current_year
 
-    FROM actors
+),
 
-    WHERE current_year = 2020
+last_year AS (
+
+    SELECT
+        a.actor,
+        a.actorid,
+        a.films,
+        a.quality_class,
+        a.is_active,
+        a.current_year
+
+    FROM actors AS a
+
+    CROSS JOIN params AS p
+
+    WHERE a.current_year = p.previous_year
 
 ),
 
 this_year AS (
 
     SELECT
-        actor,
-        actorid,
+        af.actor,
+        af.actorid,
 
         ARRAY_AGG(
             ROW(
-                film,
-                votes,
-                rating,
-                filmid
+                af.film,
+                af.votes,
+                af.rating,
+                af.filmid
             )::film_struct
-            ORDER BY filmid
+            ORDER BY af.filmid
         ) AS films,
 
-        AVG(rating) AS avg_rating,
+        AVG(af.rating) AS avg_rating,
 
-        year
+        af.year
 
-    FROM actor_films
+    FROM actor_films AS af
 
-    WHERE year = 2021
+    CROSS JOIN params AS p
+
+    WHERE af.year = p.current_year
 
     GROUP BY
-        actor,
-        actorid,
-        year
+        af.actor,
+        af.actorid,
+        af.year
 
 )
 
@@ -108,9 +134,13 @@ SELECT
 
     ty.actorid IS NOT NULL AS is_active,
 
-    2021 AS current_year
+    p.current_year AS current_year
 
-FROM last_year ly
+FROM last_year AS ly
 
-FULL OUTER JOIN this_year ty
-    ON ly.actorid = ty.actorid;
+FULL OUTER JOIN this_year AS ty
+    ON ly.actorid = ty.actorid
+
+CROSS JOIN params AS p;
+
+COMMIT;

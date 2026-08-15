@@ -2,68 +2,97 @@
 -- DataExpert Intermediate Data Engineering Boot Camp
 -- Dimensional Data Modeling - Week 1
 --
--- Query 5: Incremental actors_history_scd generation
---
--- Previous SCD snapshot:
---   2020
---
--- Incoming actor snapshot:
---   2021
+-- Hardened Query 5: Parameterized incremental actors_history_scd generation
 --
 -- Purpose:
---   Generate the 2021 SCD snapshot by combining the previous year's SCD
---   history with the incoming 2021 actors dimensional state.
+--   Generate the current Type 2 SCD snapshot from:
+--
+--     1. the previous SCD snapshot
+--     2. the incoming actors cumulative snapshot
+--
+-- Runtime parameters:
+--   previous_year - previous SCD snapshot year
+--   current_year  - incoming actors snapshot / target SCD snapshot year
+--
+-- Example:
+--   psql \
+--     -v previous_year=2020 \
+--     -v current_year=2021 \
+--     -f query_5.sql
 --
 -- Record handling:
 --   Historical records -> copied unchanged.
---   Unchanged actors   -> current interval is extended through 2021.
---   Changed actors     -> old interval retained and new interval created.
---   New actors         -> new interval begins in 2021.
+--   Unchanged actors   -> open interval extended through current_year.
+--   Changed actors     -> previous interval closed and new interval created.
+--   New actors         -> new interval begins in current_year.
+--
+-- Rerun policy:
+--   The target current_year SCD snapshot is replaced transactionally. A failure
+--   rolls back both the DELETE and INSERT.
 -- =============================================================================
 
-WITH last_year_scd AS (
+BEGIN;
+
+DELETE FROM actors_history_scd
+WHERE current_year = :'current_year'::INTEGER;
+
+WITH params AS (
 
     SELECT
-        actorid,
-        quality_class,
-        is_active,
-        start_date,
-        end_date
+        :'previous_year'::INTEGER AS previous_year,
+        :'current_year'::INTEGER AS current_year
 
-    FROM actors_history_scd
+),
 
-    WHERE current_year = 2020
-      AND end_date = 2020
+last_year_scd AS (
+
+    SELECT
+        scd.actorid,
+        scd.quality_class,
+        scd.is_active,
+        scd.start_date,
+        scd.end_date
+
+    FROM actors_history_scd AS scd
+
+    CROSS JOIN params AS p
+
+    WHERE scd.current_year = p.previous_year
+      AND scd.end_date = p.previous_year
 
 ),
 
 historical_scd AS (
 
     SELECT
-        actorid,
-        quality_class,
-        is_active,
-        start_date,
-        end_date
+        scd.actorid,
+        scd.quality_class,
+        scd.is_active,
+        scd.start_date,
+        scd.end_date
 
-    FROM actors_history_scd
+    FROM actors_history_scd AS scd
 
-    WHERE current_year = 2020
-      AND end_date < 2020
+    CROSS JOIN params AS p
+
+    WHERE scd.current_year = p.previous_year
+      AND scd.end_date < p.previous_year
 
 ),
 
 this_year_data AS (
 
     SELECT
-        actorid,
-        quality_class,
-        is_active,
-        current_year
+        a.actorid,
+        a.quality_class,
+        a.is_active,
+        a.current_year
 
-    FROM actors
+    FROM actors AS a
 
-    WHERE current_year = 2021
+    CROSS JOIN params AS p
+
+    WHERE a.current_year = p.current_year
 
 ),
 
@@ -76,9 +105,9 @@ unchanged_records AS (
         ly.start_date,
         ty.current_year AS end_date
 
-    FROM this_year_data ty
+    FROM this_year_data AS ty
 
-    INNER JOIN last_year_scd ly
+    INNER JOIN last_year_scd AS ly
         ON ty.actorid = ly.actorid
 
     WHERE ty.quality_class = ly.quality_class
@@ -109,9 +138,9 @@ changed_records AS (
             ]
         ) AS records
 
-    FROM this_year_data ty
+    FROM this_year_data AS ty
 
-    INNER JOIN last_year_scd ly
+    INNER JOIN last_year_scd AS ly
         ON ty.actorid = ly.actorid
 
     WHERE ty.quality_class IS DISTINCT FROM ly.quality_class
@@ -141,9 +170,9 @@ new_records AS (
         ty.current_year AS start_date,
         ty.current_year AS end_date
 
-    FROM this_year_data ty
+    FROM this_year_data AS ty
 
-    LEFT JOIN last_year_scd ly
+    LEFT JOIN last_year_scd AS ly
         ON ty.actorid = ly.actorid
 
     WHERE ly.actorid IS NULL
@@ -160,12 +189,12 @@ INSERT INTO actors_history_scd (
 )
 
 SELECT
-    actorid,
-    quality_class,
-    is_active,
-    start_date,
-    end_date,
-    2021 AS current_year
+    combined.actorid,
+    combined.quality_class,
+    combined.is_active,
+    combined.start_date,
+    combined.end_date,
+    p.current_year AS current_year
 
 FROM (
 
@@ -187,4 +216,8 @@ FROM (
     SELECT *
     FROM new_records
 
-) combined;
+) AS combined
+
+CROSS JOIN params AS p;
+
+COMMIT;
