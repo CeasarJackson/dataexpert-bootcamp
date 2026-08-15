@@ -36,11 +36,16 @@
 --   - Existing actors retain cumulative film history.
 --   - quality_class is recalculated only for actors with films this year.
 --   - Inactive actors retain their prior quality_class.
---   - quality thresholds remain:
+-- Quality policy:
+--   - Threshold semantics intentionally preserve the graded implementation:
 --       star    > 8
 --       good    > 7
 --       average > 6
 --       bad     <= 6
+--   - Existing actors with incoming films but no usable rating retain their
+--     previous quality_class rather than being classified as bad.
+--   - The course dataset currently contains no NULL ratings; this branch is
+--     defensive hardening for future/replayed source data.
 -- =============================================================================
 
 BEGIN;
@@ -117,14 +122,28 @@ combined_actor_state AS (
         ty.films AS incoming_films,
 
         CASE
-            WHEN ty.actorid IS NOT NULL THEN
-                CASE
-                    WHEN ty.avg_rating > 8 THEN 'star'
-                    WHEN ty.avg_rating > 7 THEN 'good'
-                    WHEN ty.avg_rating > 6 THEN 'average'
-                    ELSE 'bad'
-                END::quality_class
-            ELSE ly.quality_class
+            -- No incoming films: preserve the previous dimensional state.
+            WHEN ty.actorid IS NULL THEN
+                ly.quality_class
+
+            -- Incoming films exist but every rating is NULL. For an existing
+            -- actor, absence of rating evidence must not imply poor quality.
+            WHEN ty.avg_rating IS NULL
+                 AND ly.quality_class IS NOT NULL THEN
+                ly.quality_class
+
+            -- Preserve the strict A-grade threshold semantics.
+            WHEN ty.avg_rating > 8 THEN
+                'star'::quality_class
+
+            WHEN ty.avg_rating > 7 THEN
+                'good'::quality_class
+
+            WHEN ty.avg_rating > 6 THEN
+                'average'::quality_class
+
+            ELSE
+                'bad'::quality_class
         END AS quality_class,
 
         ty.actorid IS NOT NULL AS is_active,

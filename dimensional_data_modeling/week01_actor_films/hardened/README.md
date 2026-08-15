@@ -155,3 +155,66 @@ After restoration and regeneration:
 - actor-year snapshot count remains unchanged
 - distinct actor count remains unchanged
 - graded submission remains untouched
+
+## Phase 4 — Explicit Null-Rating Policy
+
+The cumulative actor-generation logic now defines explicit behavior for
+incoming actor-year groups whose film ratings provide no usable quality signal.
+
+### Dataset Profile
+
+The current course dataset contains:
+
+- 169,770 `actor_films` rows
+- 0 rows with `rating IS NULL`
+- 105,026 actor-year groups
+- 0 actor-year groups with all ratings NULL
+- 0 actor-year groups with a NULL `AVG(rating)`
+
+Therefore this change is defensive hardening rather than a correction to
+existing source data.
+
+### Quality-Class Policy
+
+The graded threshold semantics are intentionally preserved:
+
+- `avg_rating > 8` -> `star`
+- `avg_rating > 7` -> `good`
+- `avg_rating > 6` -> `average`
+- `avg_rating <= 6` -> `bad`
+
+Boundary profiling confirmed that changing these operators to inclusive
+thresholds would materially alter results:
+
+- exactly 8.0: 376 actor-year groups
+- exactly 7.0: 1,975 actor-year groups
+- exactly 6.0: 2,951 actor-year groups
+
+For an existing actor with incoming films but no usable rating evidence, the
+hardened implementation retains the previous `quality_class` rather than
+implicitly classifying the actor as `bad`.
+
+### Regression Validation
+
+The hardened 2021 snapshot was regenerated after implementing the policy.
+
+Bidirectional `EXCEPT` comparison against the pre-change Phase 4 baseline:
+
+- hardened-only rows: 0
+- baseline-only rows: 0
+
+The real dataset therefore remains behaviorally identical.
+
+### Synthetic Policy Validation
+
+Synthetic test results:
+
+- `8.1` -> `star`
+- `8.0` -> `good`
+- `7.0` -> `average`
+- `6.0` -> `bad`
+- existing actor with NULL average rating -> previous `quality_class`
+
+This confirms both the defensive NULL-rating behavior and preservation of the
+strict A-grade threshold rules.
+
