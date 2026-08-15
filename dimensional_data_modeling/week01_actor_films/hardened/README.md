@@ -91,3 +91,67 @@ If generation fails, PostgreSQL rolls back the transaction, preventing a
 partially deleted or partially rebuilt snapshot.
 
 The graded submission under `../submission/` remains unchanged.
+
+## Phase 3 — Deterministic and Replay-Safe Film Arrays
+
+The cumulative actor-generation logic was hardened to rebuild each actor's
+film array rather than blindly concatenating historical and incoming arrays.
+
+### Film Identity Policy
+
+`filmid` is treated as the logical film identity within an actor's cumulative
+history.
+
+The hardened behavior is:
+
+1. retain at most one `film_struct` per `(actorid, filmid)`
+2. prefer incoming-year data over historical state on a collision
+3. if historical state contains repeated `filmid` values, retain the most
+   recently appended historical occurrence
+4. rebuild the final cumulative array ordered globally by `filmid`
+
+### Dataset Observation
+
+The production course dataset contains no natural collision between a film
+already present in the 2020 cumulative actor state and a 2021 `actor_films`
+record for the same actor and `filmid`.
+
+Validation result:
+
+- natural 2020-history / 2021-source collisions: 0
+
+Therefore collision behavior was validated with controlled regression tests.
+
+### Historical Replay Test
+
+A duplicate historical film was deliberately appended to a 2020 actor array
+using the same `filmid` but altered attributes.
+
+After regenerating the 2021 snapshot:
+
+- resulting occurrences of that `filmid`: 1
+- retained representation: the most recently appended historical occurrence
+
+The original 2020 and 2021 actor snapshots were restored after the test.
+
+### Incoming-Wins Test
+
+A synthetic deterministic test supplied both historical and incoming
+representations for the same `(actorid, filmid)`.
+
+Result:
+
+- incoming representation selected: true
+
+This validates the explicit source-priority rule without weakening or
+modifying source-table constraints.
+
+### Global Validation
+
+After restoration and regeneration:
+
+- duplicate `(actorid, current_year, filmid)` occurrences: 0
+- global film-array ordering violations: 0
+- actor-year snapshot count remains unchanged
+- distinct actor count remains unchanged
+- graded submission remains untouched

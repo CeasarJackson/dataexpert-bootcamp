@@ -25,11 +25,22 @@
 --   The target current_year snapshot is replaced transactionally. If generation
 --   fails, PostgreSQL rolls back both the DELETE and INSERT.
 --
+-- Film-array policy:
+--   - Exactly one film_struct is retained per filmid.
+--   - Incoming-year data wins if the same filmid exists in historical state.
+--   - If historical state itself contains repeated filmids, the most recently
+--     appended historical occurrence wins.
+--   - Final cumulative films are ordered globally by filmid.
+--
 -- Preserved graded behavior:
 --   - Existing actors retain cumulative film history.
---   - Incoming films are appended to existing film arrays.
 --   - quality_class is recalculated only for actors with films this year.
 --   - Inactive actors retain their prior quality_class.
+--   - quality thresholds remain:
+--       star    > 8
+--       good    > 7
+--       average > 6
+--       bad     <= 6
 -- =============================================================================
 
 BEGIN;
@@ -94,6 +105,140 @@ this_year AS (
         af.actorid,
         af.year
 
+),
+
+combined_actor_state AS (
+
+    SELECT
+        COALESCE(ly.actor, ty.actor) AS actor,
+        COALESCE(ly.actorid, ty.actorid) AS actorid,
+
+        ly.films AS historical_films,
+        ty.films AS incoming_films,
+
+        CASE
+            WHEN ty.actorid IS NOT NULL THEN
+                CASE
+                    WHEN ty.avg_rating > 8 THEN 'star'
+                    WHEN ty.avg_rating > 7 THEN 'good'
+                    WHEN ty.avg_rating > 6 THEN 'average'
+                    ELSE 'bad'
+                END::quality_class
+            ELSE ly.quality_class
+        END AS quality_class,
+
+        ty.actorid IS NOT NULL AS is_active,
+
+        p.current_year AS current_year
+
+    FROM last_year AS ly
+
+    FULL OUTER JOIN this_year AS ty
+        ON ly.actorid = ty.actorid
+
+    CROSS JOIN params AS p
+
+),
+
+film_candidates AS (
+
+    SELECT
+        cas.actorid,
+        h.film,
+        h.votes,
+        h.rating,
+        h.filmid,
+        1 AS source_priority,
+        h.position AS source_position
+
+    FROM combined_actor_state AS cas
+
+    CROSS JOIN LATERAL
+        UNNEST(
+            COALESCE(
+                cas.historical_films,
+                ARRAY[]::film_struct[]
+            )
+        )
+        WITH ORDINALITY AS h(
+            film,
+            votes,
+            rating,
+            filmid,
+            position
+        )
+
+    UNION ALL
+
+    SELECT
+        cas.actorid,
+        i.film,
+        i.votes,
+        i.rating,
+        i.filmid,
+        2 AS source_priority,
+        i.position AS source_position
+
+    FROM combined_actor_state AS cas
+
+    CROSS JOIN LATERAL
+        UNNEST(
+            COALESCE(
+                cas.incoming_films,
+                ARRAY[]::film_struct[]
+            )
+        )
+        WITH ORDINALITY AS i(
+            film,
+            votes,
+            rating,
+            filmid,
+            position
+        )
+
+),
+
+deduplicated_films AS (
+
+    SELECT DISTINCT ON (
+        actorid,
+        filmid
+    )
+        actorid,
+        film,
+        votes,
+        rating,
+        filmid
+
+    FROM film_candidates
+
+    ORDER BY
+        actorid,
+        filmid,
+        source_priority DESC,
+        source_position DESC
+
+),
+
+rebuilt_film_arrays AS (
+
+    SELECT
+        actorid,
+
+        ARRAY_AGG(
+            ROW(
+                film,
+                votes,
+                rating,
+                filmid
+            )::film_struct
+            ORDER BY filmid
+        ) AS films
+
+    FROM deduplicated_films
+
+    GROUP BY actorid
+
 )
 
 INSERT INTO actors (
@@ -106,41 +251,21 @@ INSERT INTO actors (
 )
 
 SELECT
-    COALESCE(ly.actor, ty.actor) AS actor,
-
-    COALESCE(ly.actorid, ty.actorid) AS actorid,
+    cas.actor,
+    cas.actorid,
 
     COALESCE(
-        ly.films,
-        ARRAY[]::film_struct[]
-    )
-    ||
-    COALESCE(
-        ty.films,
+        rfa.films,
         ARRAY[]::film_struct[]
     ) AS films,
 
-    CASE
-        WHEN ty.actorid IS NOT NULL THEN
-            CASE
-                WHEN ty.avg_rating > 8 THEN 'star'
-                WHEN ty.avg_rating > 7 THEN 'good'
-                WHEN ty.avg_rating > 6 THEN 'average'
-                ELSE 'bad'
-            END::quality_class
+    cas.quality_class,
+    cas.is_active,
+    cas.current_year
 
-        ELSE ly.quality_class
-    END AS quality_class,
+FROM combined_actor_state AS cas
 
-    ty.actorid IS NOT NULL AS is_active,
-
-    p.current_year AS current_year
-
-FROM last_year AS ly
-
-FULL OUTER JOIN this_year AS ty
-    ON ly.actorid = ty.actorid
-
-CROSS JOIN params AS p;
+LEFT JOIN rebuilt_film_arrays AS rfa
+    ON cas.actorid = rfa.actorid;
 
 COMMIT;
