@@ -185,3 +185,29 @@ non-secret configuration template.
 ## Author
 
 Ceasar Jackson
+
+## Post-Grade Remediation Workflow
+
+After grader feedback, the Week 5 implementation was hardened with the
+missing SQL and runtime deliverables.
+
+The recommended execution sequence is:
+
+    make postgres-init
+    make sessionization_job
+    make session-metrics
+
+The remediation adds:
+
+- `Makefile`
+- `sql/create_sessionization_tables.sql`
+- `sql/avgsessionevents.sql`
+- JDBC upsert semantics using `PRIMARY KEY (host) NOT ENFORCED`
+- physical PostgreSQL primary key on the host-summary table
+- UTC Table API timezone configuration
+- configurable watermark tolerance
+- configurable checkpoint interval
+- configurable Kafka startup mode
+
+The SQL deliverables were integration-tested against an isolated PostgreSQL
+15 instance before packaging.

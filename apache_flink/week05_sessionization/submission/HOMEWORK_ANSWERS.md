@@ -156,3 +156,137 @@ The submitted solution satisfies the requested requirements:
 - Is compatible with the course's Flink 1.16.2 / Python 3.7.9 runtime.
 - Uses coordinated StatementSet execution for both streaming sinks.
 - Includes historical validation evidence for spot checking.
+
+## Post-Grade Remediation
+
+The submission was hardened after grader feedback to address the missing
+operational and SQL deliverables and to strengthen runtime correctness.
+
+### Added SQL Deliverables
+
+The resubmission includes:
+
+- `create_sessionization_tables.sql`
+- `avgsessionevents.sql`
+
+`create_sessionization_tables.sql` creates the physical PostgreSQL tables
+required by the Flink JDBC sinks.
+
+The host-summary table defines:
+
+    host TEXT PRIMARY KEY
+
+This supports the upsert semantics required by the continuously updating
+host-level aggregation.
+
+`avgsessionevents.sql` answers both required analytical questions:
+
+1. Overall Tech Creator average:
+
+       host LIKE '%.techcreator.io'
+
+2. Comparison of:
+
+   - zachwilson.techcreator.io
+   - zachwilson.tech
+   - lulu.techcreator.io
+
+### Added Makefile Workflow
+
+The resubmission includes these reproducible targets:
+
+    make postgres-init
+    make sessionization_job
+    make session-metrics
+
+The intended execution order is:
+
+    make postgres-init
+    make sessionization_job
+    make session-metrics
+
+### JDBC Upsert Hardening
+
+The Flink host-summary connector table now declares:
+
+    PRIMARY KEY (host) NOT ENFORCED
+
+The physical PostgreSQL table defines a real primary key on `host`.
+
+This allows the JDBC connector to process update/changelog records from the
+unbounded host aggregation using upsert semantics.
+
+### UTC Event-Time Hardening
+
+Kafka event timestamps contain a trailing `Z`, indicating UTC.
+
+The Flink Table API local timezone is now explicitly pinned to UTC:
+
+    table.local-time-zone = UTC
+
+This prevents JVM-local timezone settings from shifting session event-time
+interpretation.
+
+### Configurable Runtime Settings
+
+The following runtime settings are now configurable through environment
+variables:
+
+- `FLINK_WATERMARK_SECONDS`
+- `FLINK_CHECKPOINT_INTERVAL_MS`
+- `KAFKA_STARTUP_MODE`
+
+Defaults remain compatible with the original live pipeline:
+
+- watermark: 15 seconds
+- checkpoint interval: 10000 milliseconds
+- Kafka startup: latest-offset
+
+For QA/backfill validation, `KAFKA_STARTUP_MODE=earliest-offset` is also
+supported.
+
+### PostgreSQL Integration Validation
+
+The remediation SQL was executed against an isolated PostgreSQL 15
+container.
+
+Validated behavior included:
+
+- physical DDL execution
+- idempotent DDL rerun
+- physical host-summary primary key
+- overall Tech Creator metric
+- all three requested host metrics
+- primary-key upsert behavior
+
+A deterministic fixture produced:
+
+- overall Tech Creator average: 4.0000
+- zachwilson.techcreator.io: 3.0000
+- zachwilson.tech: 8.0000
+- lulu.techcreator.io: 6.0000
+
+These values are test-fixture validation results only and are not intended
+to replace the historical/offline homework results documented earlier.
+
+## Required Runtime Environment
+
+The Flink runtime requires the course Kafka and PostgreSQL settings,
+including:
+
+- `KAFKA_URL`
+- `KAFKA_TOPIC`
+- `KAFKA_GROUP`
+- `KAFKA_WEB_TRAFFIC_KEY`
+- `KAFKA_WEB_TRAFFIC_SECRET`
+- `POSTGRES_URL`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+
+Optional runtime-tuning settings are:
+
+- `FLINK_WATERMARK_SECONDS`
+- `FLINK_CHECKPOINT_INTERVAL_MS`
+- `KAFKA_STARTUP_MODE`
+
+No live credentials are included in the submission.
