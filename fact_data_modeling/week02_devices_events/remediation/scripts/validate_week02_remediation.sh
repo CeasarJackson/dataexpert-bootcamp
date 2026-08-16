@@ -114,6 +114,36 @@ do
 done
 
 echo
+echo "===== FINAL HARDENING ====="
+
+q3="$REM/sql/query_3.sql"
+q6="$REM/sql/query_6.sql"
+
+if grep -Fq "ON CONFLICT (user_id, browser_type, date)" "$q3"; then
+    pass "Query 3 supports idempotent snapshot reruns"
+else
+    fail "Query 3 missing idempotent ON CONFLICT handling"
+fi
+
+if grep -Fq "device_activity_datelist = EXCLUDED.device_activity_datelist" "$q3"; then
+    pass "Query 3 upserts calculated device activity state"
+else
+    fail "Query 3 missing device activity update action"
+fi
+
+if grep -Fq "ON CONFLICT (host, date)" "$q6"; then
+    pass "Query 6 supports idempotent snapshot reruns"
+else
+    fail "Query 6 missing idempotent ON CONFLICT handling"
+fi
+
+if grep -Fq "host_activity_datelist = EXCLUDED.host_activity_datelist" "$q6"; then
+    pass "Query 6 upserts calculated host activity state"
+else
+    fail "Query 6 missing host activity update action"
+fi
+
+echo
 echo "===== GIT DIFF CHECK ====="
 
 if git diff --check; then

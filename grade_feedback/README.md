@@ -10,7 +10,7 @@
 | Week | Topic | Original Grade | Current Status |
 |---|---|---:|---|
 | 1 | Dimensional Data Modeling | A | Post-grade hardening completed |
-| 2 | Fact Data Modeling | B | Grade remediation required |
+| 2 | Fact Data Modeling | B | Grade remediation completed; post-remediation review confirms all 8 prompts |
 | 3 | Spark Fundamentals | B | Grade remediation required / hardening under review |
 | 4 | Analytical Patterns | B | Grade remediation completed |
 
@@ -38,7 +38,7 @@
 
 ## Remediation Priority
 
-1. Week 2 — correct Query 4 and verify assignment table-name alignment.
-2. Week 3 — complete/verify bucket-join evidence and genuine partitioned-table experiments.
-3. Week 4 — complete; resubmission package already produced.
+1. Week 3 — complete/verify bucket-join evidence and genuine partitioned-table experiments.
+2. Week 2 — remediation complete; final robustness hardening in progress.
+3. Week 4 — remediation complete; resubmission package produced.
 4. Week 1 — no grade remediation required.
