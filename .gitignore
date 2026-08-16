@@ -36,3 +36,6 @@ upstream/
 
 # Generated homework submission packages
 *_Week*.zip
+
+# Local/generated Spark coursework datasets
+/data/
