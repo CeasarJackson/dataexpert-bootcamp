@@ -1,0 +1,148 @@
+== Physical Plan ==
+AdaptiveSparkPlan (23)
++- BroadcastHashJoin LeftOuter BuildRight (22)
+   :- BroadcastHashJoin LeftOuter BuildRight (18)
+   :  :- Project (14)
+   :  :  +- Filter (13)
+   :  :     +- SortMergeJoin LeftOuter (12)
+   :  :        :- Project (8)
+   :  :        :  +- SortMergeJoin Inner (7)
+   :  :        :     :- Sort (3)
+   :  :        :     :  +- Filter (2)
+   :  :        :     :     +- Scan parquet spark_catalog.default.hw_match_details_bucketed (1)
+   :  :        :     +- Sort (6)
+   :  :        :        +- Filter (5)
+   :  :        :           +- Scan parquet spark_catalog.default.hw_matches_bucketed (4)
+   :  :        +- Sort (11)
+   :  :           +- Filter (10)
+   :  :              +- Scan parquet spark_catalog.default.hw_medals_matches_players_bucketed (9)
+   :  +- BroadcastExchange (17)
+   :     +- Filter (16)
+   :        +- Scan parquet  (15)
+   +- BroadcastExchange (21)
+      +- Filter (20)
+         +- Scan parquet  (19)
+
+
+(1) Scan parquet spark_catalog.default.hw_match_details_bucketed
+Output [3]: [match_id#14, player_gamertag#15, player_total_kills#16L]
+Batched: true
+Bucketed: true
+Location: InMemoryFileIndex [file:/Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp/spark-warehouse/hw_match_details_bucketed]
+PushedFilters: [IsNotNull(match_id)]
+ReadSchema: struct<match_id:string,player_gamertag:string,player_total_kills:bigint>
+SelectedBucketsCount: 16 out of 16
+
+(2) Filter
+Input [3]: [match_id#14, player_gamertag#15, player_total_kills#16L]
+Condition : isnotnull(match_id#14)
+
+(3) Sort
+Input [3]: [match_id#14, player_gamertag#15, player_total_kills#16L]
+Arguments: [match_id#14 ASC NULLS FIRST], false, 0
+
+(4) Scan parquet spark_catalog.default.hw_matches_bucketed
+Output [3]: [match_id#17, mapid#18, playlist_id#19]
+Batched: true
+Bucketed: true
+Location: InMemoryFileIndex [file:/Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp/spark-warehouse/hw_matches_bucketed]
+PushedFilters: [IsNotNull(match_id)]
+ReadSchema: struct<match_id:string,mapid:string,playlist_id:string>
+SelectedBucketsCount: 16 out of 16
+
+(5) Filter
+Input [3]: [match_id#17, mapid#18, playlist_id#19]
+Condition : isnotnull(match_id#17)
+
+(6) Sort
+Input [3]: [match_id#17, mapid#18, playlist_id#19]
+Arguments: [match_id#17 ASC NULLS FIRST], false, 0
+
+(7) SortMergeJoin
+Left keys [1]: [match_id#14]
+Right keys [1]: [match_id#17]
+Join type: Inner
+Join condition: None
+
+(8) Project
+Output [5]: [match_id#14, player_gamertag#15, player_total_kills#16L, mapid#18, playlist_id#19]
+Input [6]: [match_id#14, player_gamertag#15, player_total_kills#16L, match_id#17, mapid#18, playlist_id#19]
+
+(9) Scan parquet spark_catalog.default.hw_medals_matches_players_bucketed
+Output [4]: [match_id#20, player_gamertag#21, medal_id#22L, count#23L]
+Batched: true
+Bucketed: true
+Location: InMemoryFileIndex [file:/Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp/spark-warehouse/hw_medals_matches_players_bucketed]
+PushedFilters: [IsNotNull(match_id)]
+ReadSchema: struct<match_id:string,player_gamertag:string,medal_id:bigint,count:bigint>
+SelectedBucketsCount: 16 out of 16
+
+(10) Filter
+Input [4]: [match_id#20, player_gamertag#21, medal_id#22L, count#23L]
+Condition : isnotnull(match_id#20)
+
+(11) Sort
+Input [4]: [match_id#20, player_gamertag#21, medal_id#22L, count#23L]
+Arguments: [match_id#20 ASC NULLS FIRST], false, 0
+
+(12) SortMergeJoin
+Left keys [1]: [match_id#14]
+Right keys [1]: [match_id#20]
+Join type: LeftOuter
+Join condition: None
+
+(13) Filter
+Input [9]: [match_id#14, player_gamertag#15, player_total_kills#16L, mapid#18, playlist_id#19, match_id#20, player_gamertag#21, medal_id#22L, count#23L]
+Condition : (isnull(player_gamertag#21) OR (player_gamertag#15 = player_gamertag#21))
+
+(14) Project
+Output [8]: [match_id#14, player_gamertag#15, player_total_kills#16L, mapid#18, playlist_id#19, player_gamertag#21, medal_id#22L, count#23L]
+Input [9]: [match_id#14, player_gamertag#15, player_total_kills#16L, mapid#18, playlist_id#19, match_id#20, player_gamertag#21, medal_id#22L, count#23L]
+
+(15) Scan parquet 
+Output [2]: [medal_id#10L, name#11]
+Batched: true
+Location: InMemoryFileIndex [file:/Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp/data/medals]
+PushedFilters: [IsNotNull(medal_id)]
+ReadSchema: struct<medal_id:bigint,name:string>
+
+(16) Filter
+Input [2]: [medal_id#10L, name#11]
+Condition : isnotnull(medal_id#10L)
+
+(17) BroadcastExchange
+Input [2]: [medal_id#10L, name#11]
+Arguments: HashedRelationBroadcastMode(List(input[0, bigint, false]),false), [plan_id=183]
+
+(18) BroadcastHashJoin
+Left keys [1]: [medal_id#22L]
+Right keys [1]: [medal_id#10L]
+Join type: LeftOuter
+Join condition: None
+
+(19) Scan parquet 
+Output [2]: [mapid#12, name#13]
+Batched: true
+Location: InMemoryFileIndex [file:/Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp/data/maps]
+PushedFilters: [IsNotNull(mapid)]
+ReadSchema: struct<mapid:string,name:string>
+
+(20) Filter
+Input [2]: [mapid#12, name#13]
+Condition : isnotnull(mapid#12)
+
+(21) BroadcastExchange
+Input [2]: [mapid#12, name#13]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=186]
+
+(22) BroadcastHashJoin
+Left keys [1]: [mapid#18]
+Right keys [1]: [mapid#12]
+Join type: LeftOuter
+Join condition: None
+
+(23) AdaptiveSparkPlan
+Output [12]: [match_id#14, player_gamertag#15, player_total_kills#16L, mapid#18, playlist_id#19, player_gamertag#21, medal_id#22L, count#23L, medal_id#10L, name#11, mapid#12, name#13]
+Arguments: isFinalPlan=false
+
+

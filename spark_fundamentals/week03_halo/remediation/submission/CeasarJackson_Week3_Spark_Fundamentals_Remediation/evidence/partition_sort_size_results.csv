@@ -1,0 +1,5 @@
+experiment,repartition_columns,partition_columns,sort_columns,size_bytes,size_mb
+baseline_coalesced,<none>,<none>,<none>,1503,0.001
+partition_playlist_sorted_playlist_map,playlist_id,playlist_id,"playlist_id,map_name",2189,0.002
+partition_map_sorted_map_playlist,map_name,map_name,"map_name,playlist_id",2220,0.002
+partition_playlist_map_sorted_playlist_map,"playlist_id,map_name","playlist_id,map_name","playlist_id,map_name",2342,0.002
