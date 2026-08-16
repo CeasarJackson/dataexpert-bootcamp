@@ -2,7 +2,7 @@
 
 ## Student
 
-Ceasar Jackson  
+Ceasar Jackson
 Discord Username: knucknuclear
 
 ## Contents
