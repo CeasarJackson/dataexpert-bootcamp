@@ -1,0 +1,4 @@
+{"experiment":"baseline_coalesced","repartition_columns":"<none>","partition_columns":"<none>","sort_columns":"<none>","size_bytes":1503,"size_mb":0.001}
+{"experiment":"partition_playlist_sorted_playlist_map","repartition_columns":"playlist_id","partition_columns":"playlist_id","sort_columns":"playlist_id,map_name","size_bytes":2189,"size_mb":0.002}
+{"experiment":"partition_map_sorted_map_playlist","repartition_columns":"map_name","partition_columns":"map_name","sort_columns":"map_name,playlist_id","size_bytes":2220,"size_mb":0.002}
+{"experiment":"partition_playlist_map_sorted_playlist_map","repartition_columns":"playlist_id,map_name","partition_columns":"playlist_id,map_name","sort_columns":"playlist_id,map_name","size_bytes":2342,"size_mb":0.002}
