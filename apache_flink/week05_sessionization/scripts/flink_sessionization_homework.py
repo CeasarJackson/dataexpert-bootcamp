@@ -55,6 +55,10 @@ from pyflink.table.window import Session
 
 SESSION_GAP_MINUTES: int = 5
 
+DEFAULT_WATERMARK_SECONDS: int = 15
+DEFAULT_CHECKPOINT_INTERVAL_MS: int = 10_000
+DEFAULT_KAFKA_STARTUP_MODE: str = "latest-offset"
+
 TARGET_HOSTS: Tuple[str, ...] = (
     "zachwilson.techcreator.io",
     "zachwilson.tech",
@@ -79,6 +83,66 @@ def require_env(name: str) -> str:
     return value
 
 
+def get_positive_int_env(name: str, default: int) -> int:
+    """
+    Return a positive integer environment setting.
+
+    The supplied default is used when the environment variable is absent
+    or blank.
+
+    Raises:
+        RuntimeError:
+            If the configured value is not a positive integer.
+    """
+    raw_value = os.environ.get(name, "").strip()
+
+    if not raw_value:
+        return default
+
+    try:
+        value = int(raw_value)
+    except ValueError as exc:
+        raise RuntimeError(
+            f"{name} must be a positive integer; received: {raw_value!r}"
+        ) from exc
+
+    if value <= 0:
+        raise RuntimeError(
+            f"{name} must be greater than zero; received: {value}"
+        )
+
+    return value
+
+
+def get_kafka_startup_mode() -> str:
+    """
+    Return the configured Kafka startup mode.
+
+    Supported values intentionally match the modes used for this homework:
+
+    - latest-offset
+    - earliest-offset
+    """
+    startup_mode = os.environ.get(
+        "KAFKA_STARTUP_MODE",
+        DEFAULT_KAFKA_STARTUP_MODE,
+    ).strip()
+
+    allowed_modes = {
+        "latest-offset",
+        "earliest-offset",
+    }
+
+    if startup_mode not in allowed_modes:
+        raise RuntimeError(
+            "KAFKA_STARTUP_MODE must be one of: "
+            + ", ".join(sorted(allowed_modes))
+            + f"; received: {startup_mode!r}"
+        )
+
+    return startup_mode
+
+
 def create_events_source_kafka(t_env: StreamTableEnvironment) -> str:
     """
     Register the Kafka source containing bootcamp web events.
@@ -95,6 +159,12 @@ def create_events_source_kafka(t_env: StreamTableEnvironment) -> str:
     kafka_topic = require_env("KAFKA_TOPIC")
     kafka_group = require_env("KAFKA_GROUP")
 
+    watermark_seconds = get_positive_int_env(
+        "FLINK_WATERMARK_SECONDS",
+        DEFAULT_WATERMARK_SECONDS,
+    )
+    kafka_startup_mode = get_kafka_startup_mode()
+
     timestamp_pattern = "yyyy-MM-dd''T''HH:mm:ss.SSS''Z''"
 
     source_ddl = f"""
@@ -108,7 +178,7 @@ def create_events_source_kafka(t_env: StreamTableEnvironment) -> str:
             event_time VARCHAR,
             event_timestamp AS TO_TIMESTAMP(event_time, '{timestamp_pattern}'),
             WATERMARK FOR event_timestamp
-                AS event_timestamp - INTERVAL '15' SECOND
+                AS event_timestamp - INTERVAL '{watermark_seconds}' SECOND
         ) WITH (
             'connector' = 'kafka',
             'properties.bootstrap.servers' = '{kafka_url}',
@@ -118,7 +188,7 @@ def create_events_source_kafka(t_env: StreamTableEnvironment) -> str:
             'properties.sasl.mechanism' = 'PLAIN',
             'properties.sasl.jaas.config' =
                 'org.apache.flink.kafka.shaded.org.apache.kafka.common.security.plain.PlainLoginModule required username="{kafka_key}" password="{kafka_secret}";',
-            'scan.startup.mode' = 'latest-offset',
+            'scan.startup.mode' = '{kafka_startup_mode}',
             'properties.auto.offset.reset' = 'latest',
             'format' = 'json'
         )
@@ -178,7 +248,8 @@ def create_host_summary_sink_postgres(
             host VARCHAR,
             session_count BIGINT,
             total_events BIGINT,
-            avg_events_per_session DOUBLE
+            avg_events_per_session DOUBLE,
+            PRIMARY KEY (host) NOT ENFORCED
         ) WITH (
             'connector' = 'jdbc',
             'url' = '{postgres_url}',
@@ -313,7 +384,12 @@ def configure_environment() -> StreamTableEnvironment:
     """
     env = StreamExecutionEnvironment.get_execution_environment()
 
-    env.enable_checkpointing(10_000)
+    checkpoint_interval_ms = get_positive_int_env(
+        "FLINK_CHECKPOINT_INTERVAL_MS",
+        DEFAULT_CHECKPOINT_INTERVAL_MS,
+    )
+
+    env.enable_checkpointing(checkpoint_interval_ms)
     env.set_parallelism(3)
 
     settings = (
@@ -322,10 +398,21 @@ def configure_environment() -> StreamTableEnvironment:
         .build()
     )
 
-    return StreamTableEnvironment.create(
+    t_env = StreamTableEnvironment.create(
         env,
         environment_settings=settings,
     )
+
+    # Kafka event_time values are UTC and contain a trailing Z. Flink 1.16's
+    # TO_TIMESTAMP parsing produces TIMESTAMP values without timezone metadata,
+    # so pin the Table API local timezone to UTC to prevent JVM-local timezone
+    # settings from shifting event-time interpretation.
+    t_env.get_config().set(
+        "table.local-time-zone",
+        "UTC",
+    )
+
+    return t_env
 
 
 def run() -> None:
@@ -336,6 +423,17 @@ def run() -> None:
     print("DataExpert Week 5 - Apache Flink Sessionization Homework")
     print("=" * 72)
     print(f"Session gap: {SESSION_GAP_MINUTES} minutes")
+    print(
+        "Watermark tolerance: "
+        f"{get_positive_int_env('FLINK_WATERMARK_SECONDS', DEFAULT_WATERMARK_SECONDS)} "
+        "seconds"
+    )
+    print(
+        "Checkpoint interval: "
+        f"{get_positive_int_env('FLINK_CHECKPOINT_INTERVAL_MS', DEFAULT_CHECKPOINT_INTERVAL_MS)} "
+        "ms"
+    )
+    print(f"Kafka startup mode: {get_kafka_startup_mode()}")
     print("Session key: ip + host")
     print("Target hosts:")
 
