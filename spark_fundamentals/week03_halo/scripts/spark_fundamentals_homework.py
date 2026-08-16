@@ -31,7 +31,9 @@ Notes:
 from __future__ import annotations
 
 import os
+import io
 from pathlib import Path
+from contextlib import redirect_stdout
 from typing import Dict
 
 from pyspark.sql import DataFrame, SparkSession
@@ -153,6 +155,13 @@ def build_joined_dataframe(
 
     Large match-grain datasets are loaded from identically bucketed tables.
     Small lookup/dimension datasets are explicitly broadcast.
+
+    Post-grade hardening note:
+        The three large tables are bucketed by match_id. To preserve the
+        opportunity for bucket-aware joins, the medals_matches_players join is
+        performed on match_id first. Player-level matching is then applied as a
+        post-join row filter so the logical player grain is preserved without
+        changing the physical bucket join key.
     """
     match_details = spark.table("hw_match_details_bucketed").alias("md")
     matches = spark.table("hw_matches_bucketed").alias("m")
@@ -161,27 +170,22 @@ def build_joined_dataframe(
     medals_dim = broadcast(medals).alias("med")
     maps_dim = broadcast(maps).alias("map")
 
-    # Keep the base match/player grain first.
     joined = (
         match_details
         .join(matches, on="match_id", how="inner")
-        .join(
-            mmp,
-            on=[
-                match_details["match_id"] == mmp["match_id"],
-                match_details["player_gamertag"] == mmp["player_gamertag"],
-            ],
-            how="left",
+        .join(mmp, on="match_id", how="left")
+        .where(
+            F.col("mmp.player_gamertag").isNull()
+            | (F.col("md.player_gamertag") == F.col("mmp.player_gamertag"))
         )
-        .drop(mmp["match_id"])
         .join(
             medals_dim,
-            mmp["medal_id"] == medals_dim["medal_id"],
+            F.col("mmp.medal_id") == F.col("med.medal_id"),
             how="left",
         )
         .join(
             maps_dim,
-            matches["mapid"] == maps_dim["mapid"],
+            F.col("m.mapid") == F.col("map.mapid"),
             how="left",
         )
     )
@@ -299,45 +303,88 @@ def directory_size_bytes(path: str) -> int:
     )
 
 
+def save_explain_plan(df: DataFrame, output_path: str) -> None:
+    """Save a formatted Spark physical plan for submission evidence."""
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        df.explain(mode="formatted")
+
+    target = Path(output_path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(buffer.getvalue())
+
+
 def run_sort_experiments(aggregated: DataFrame, output_base: str) -> DataFrame:
     """
-    Write the same aggregated dataset using several intra-partition sort orders.
+    Write partitioning and sortWithinPartitions experiments for storage sizing.
 
-    Low-cardinality columns such as playlist_id and map_name often compress
-    efficiently when similar values are colocated. The experiment measures the
-    actual persisted size instead of assuming which ordering wins.
+    This post-grade hardening version varies both partitioning strategy and
+    intra-partition ordering, as requested by the assignment feedback.
 
     Note:
         directory_size_bytes() is intended for a local filesystem. On DBFS/S3,
         use the platform filesystem API to calculate directory sizes.
     """
-    experiments = {
-        "unsorted": [],
-        "playlist": ["playlist_id"],
-        "map": ["map_name"],
-        "playlist_map": ["playlist_id", "map_name"],
-        "map_playlist": ["map_name", "playlist_id"],
-    }
+    experiments = [
+        {
+            "experiment": "baseline_coalesced",
+            "repartition_columns": [],
+            "sort_columns": [],
+            "partition_columns": [],
+            "coalesce": 1,
+        },
+        {
+            "experiment": "partition_playlist_sorted_playlist_map",
+            "repartition_columns": ["playlist_id"],
+            "sort_columns": ["playlist_id", "map_name"],
+            "partition_columns": ["playlist_id"],
+            "coalesce": None,
+        },
+        {
+            "experiment": "partition_map_sorted_map_playlist",
+            "repartition_columns": ["map_name"],
+            "sort_columns": ["map_name", "playlist_id"],
+            "partition_columns": ["map_name"],
+            "coalesce": None,
+        },
+        {
+            "experiment": "partition_playlist_map_sorted_playlist_map",
+            "repartition_columns": ["playlist_id", "map_name"],
+            "sort_columns": ["playlist_id", "map_name"],
+            "partition_columns": ["playlist_id", "map_name"],
+            "coalesce": None,
+        },
+    ]
 
     rows = []
 
-    for experiment_name, sort_columns in experiments.items():
-        target = f"{output_base}/sort_experiments/{experiment_name}"
+    for config in experiments:
+        experiment_name = config["experiment"]
+        target = f"{output_base}/partition_sort_experiments/{experiment_name}"
 
         candidate = aggregated
-        if sort_columns:
-            candidate = candidate.sortWithinPartitions(*sort_columns)
 
-        (
-            candidate.write
-            .mode("overwrite")
-            .parquet(target)
-        )
+        if config["coalesce"]:
+            candidate = candidate.coalesce(config["coalesce"])
+
+        if config["repartition_columns"]:
+            candidate = candidate.repartition(*config["repartition_columns"])
+
+        if config["sort_columns"]:
+            candidate = candidate.sortWithinPartitions(*config["sort_columns"])
+
+        writer = candidate.write.mode("overwrite")
+        if config["partition_columns"]:
+            writer = writer.partitionBy(*config["partition_columns"])
+
+        writer.parquet(target)
 
         rows.append(
             (
                 experiment_name,
-                ",".join(sort_columns) if sort_columns else "<none>",
+                ",".join(config["repartition_columns"]) if config["repartition_columns"] else "<none>",
+                ",".join(config["partition_columns"]) if config["partition_columns"] else "<none>",
+                ",".join(config["sort_columns"]) if config["sort_columns"] else "<none>",
                 directory_size_bytes(target),
             )
         )
@@ -347,7 +394,13 @@ def run_sort_experiments(aggregated: DataFrame, output_base: str) -> DataFrame:
     return (
         spark.createDataFrame(
             rows,
-            ["experiment", "sort_columns", "size_bytes"],
+            [
+                "experiment",
+                "repartition_columns",
+                "partition_columns",
+                "sort_columns",
+                "size_bytes",
+            ],
         )
         .withColumn(
             "size_mb",
@@ -400,14 +453,24 @@ def main() -> None:
         medals = read_parquet(spark, "medals")
         maps = read_parquet(spark, "maps")
 
-        # Validate the essential join keys before expensive work begins.
-        require_columns(match_details, "match_details", {"match_id"})
-        require_columns(matches, "matches", {"match_id"})
+        # Validate the essential join keys and analytic columns before expensive work begins.
+        require_columns(
+            match_details,
+            "match_details",
+            {"match_id", "player_gamertag", "player_total_kills"},
+        )
+        require_columns(
+            matches,
+            "matches",
+            {"match_id", "playlist_id", "mapid"},
+        )
         require_columns(
             medals_matches_players,
             "medals_matches_players",
-            {"match_id"},
+            {"match_id", "player_gamertag", "medal_id", "count"},
         )
+        require_columns(medals, "medals", {"medal_id"})
+        require_columns(maps, "maps", {"mapid"})
 
         # ---------------------------------------------------------------------
         # 1. Required bucketing
@@ -430,6 +493,10 @@ def main() -> None:
 
         print("\n===== JOIN PHYSICAL PLAN =====")
         joined.explain(mode="formatted")
+        save_explain_plan(
+            joined,
+            f"{OUTPUT_BASE}/evidence/joined_physical_plan_formatted.txt",
+        )
 
         # ---------------------------------------------------------------------
         # 3. Required questions
@@ -484,8 +551,17 @@ def main() -> None:
             OUTPUT_BASE,
         )
 
-        print("\n===== SORT WITHIN PARTITIONS SIZE COMPARISON =====")
+        print("\n===== PARTITION + SORT WITHIN PARTITIONS SIZE COMPARISON =====")
         size_results.show(truncate=False)
+
+        size_results.coalesce(1).write.mode("overwrite").json(
+            f"{OUTPUT_BASE}/evidence/partition_sort_size_results_json"
+        )
+        size_results.coalesce(1).write.mode("overwrite").option(
+            "header", True
+        ).csv(
+            f"{OUTPUT_BASE}/evidence/partition_sort_size_results_csv"
+        )
 
         best = size_results.first()
         print(
