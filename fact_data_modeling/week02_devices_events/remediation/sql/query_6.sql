@@ -66,4 +66,8 @@ SELECT
 FROM yesterday AS y
 
 FULL OUTER JOIN today AS t
-    ON y.host = t.host;
+    ON y.host = t.host
+
+ON CONFLICT (host, date)
+DO UPDATE SET
+    host_activity_datelist = EXCLUDED.host_activity_datelist;

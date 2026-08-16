@@ -89,4 +89,8 @@ FROM yesterday AS y
 
 FULL OUTER JOIN today AS t
     ON y.user_id = t.user_id
-   AND y.browser_type = t.browser_type;
+   AND y.browser_type = t.browser_type
+
+ON CONFLICT (user_id, browser_type, date)
+DO UPDATE SET
+    device_activity_datelist = EXCLUDED.device_activity_datelist;
