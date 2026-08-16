@@ -72,7 +72,12 @@ player_activity_flags AS (
             ELSE 0
         END AS was_active_previous_season,
         CASE
-            WHEN prior.player_name IS NOT NULL THEN 1
+            WHEN EXISTS (
+                SELECT 1
+                FROM player_activity AS prior
+                WHERE prior.player_name = grid.player_name
+                  AND prior.current_season < grid.current_season
+            ) THEN 1
             ELSE 0
         END AS had_any_prior_season
     FROM player_season_grid AS grid
@@ -82,9 +87,6 @@ player_activity_flags AS (
     LEFT JOIN player_activity AS prev
         ON grid.player_name = prev.player_name
        AND grid.current_season - 1 = prev.current_season
-    LEFT JOIN player_activity AS prior
-        ON grid.player_name = prior.player_name
-       AND prior.current_season < grid.current_season
 ),
 
 player_state_changes AS (

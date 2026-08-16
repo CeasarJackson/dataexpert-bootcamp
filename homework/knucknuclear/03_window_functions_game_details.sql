@@ -42,6 +42,10 @@ team_rolling_90_games AS (
         game_id,
         game_date_est,
         is_win,
+        ROW_NUMBER() OVER (
+            PARTITION BY team_id
+            ORDER BY game_date_est, game_id
+        ) AS team_game_number,
         SUM(is_win) OVER (
             PARTITION BY team_id
             ORDER BY game_date_est, game_id
@@ -57,6 +61,7 @@ SELECT
     game_date_est AS ending_game_date,
     wins_in_90_game_stretch
 FROM team_rolling_90_games
+WHERE team_game_number >= 90
 ORDER BY wins_in_90_game_stretch DESC
 LIMIT 1;
 

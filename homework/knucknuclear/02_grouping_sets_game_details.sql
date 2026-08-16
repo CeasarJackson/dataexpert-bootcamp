@@ -81,7 +81,11 @@ grouped_metrics AS (
 
         SUM(points) AS total_points,
         COUNT(DISTINCT game_id) AS games_played,
-        SUM(team_win) AS team_wins
+        COUNT(
+            DISTINCT CASE
+                WHEN team_win = 1 THEN game_id
+            END
+        ) AS team_wins
     FROM game_detail_enriched
     GROUP BY GROUPING SETS (
         (player_name, team_abbreviation),
