@@ -1,0 +1,35 @@
+{
+  "validation_type": "offline historical CSV sessionization",
+  "session_gap_minutes": 5,
+  "identity_note": "Historical CSV has no IP column; device_id is used only as an offline session-identity surrogate. The Flink homework job still groups by IP + host.",
+  "source_rows": 412320,
+  "target_rows": 6993,
+  "malformed_timestamp_rows": 0,
+  "blank_identity_rows": 0,
+  "hosts": [
+    {
+      "host": "zachwilson.techcreator.io",
+      "session_count": 2521,
+      "total_events": 4339,
+      "average_events_per_session": 1.7211424038080128,
+      "minimum_events_per_session": 1,
+      "maximum_events_per_session": 51
+    },
+    {
+      "host": "zachwilson.tech",
+      "session_count": 1,
+      "total_events": 2,
+      "average_events_per_session": 2,
+      "minimum_events_per_session": 2,
+      "maximum_events_per_session": 2
+    },
+    {
+      "host": "lulu.techcreator.io",
+      "session_count": 1503,
+      "total_events": 2652,
+      "average_events_per_session": 1.7644710578842315,
+      "minimum_events_per_session": 1,
+      "maximum_events_per_session": 97
+    }
+  ]
+}

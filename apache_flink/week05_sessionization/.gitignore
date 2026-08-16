@@ -1,0 +1,13 @@
+
+# ---------------------------------------------------------------------------
+# Local validation / recovery artifacts
+# ---------------------------------------------------------------------------
+validation/logs/
+validation/recovery/
+validation/results/offline_sessionization_sessions.csv
+validation/results/week05_flink_sessionization_submission.zip
+validation/results/week05_flink_sessionization_submission.zip.sha256
+
+# Python transient files
+__pycache__/
+*.py[cod]

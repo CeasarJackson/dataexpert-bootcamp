@@ -1,0 +1,4 @@
+host,session_count,total_events,average_events_per_session,minimum_events_per_session,maximum_events_per_session
+zachwilson.techcreator.io,2521,4339,1.7211424038080128,1,51
+zachwilson.tech,1,2,2,2,2
+lulu.techcreator.io,1503,2652,1.7644710578842315,1,97
