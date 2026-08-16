@@ -39,3 +39,15 @@ upstream/
 
 # Extracted/generated homework submission folders
 fact_data_modeling/week02_devices_events/CeasarJackson_Fact_Data_Modeling_Week2/
+
+# Local Spark homework data
+data/
+spark_fundamentals/week03_halo/data/
+spark_fundamentals/week03_halo/validation/logs/
+spark_fundamentals/week03_halo/validation/results/
+
+# Local Spark runtime artifacts
+output/
+spark-warehouse/
+metastore_db/
+derby.log
