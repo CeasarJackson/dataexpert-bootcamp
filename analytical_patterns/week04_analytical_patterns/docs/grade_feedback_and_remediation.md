@@ -2,7 +2,7 @@
 
 ## Student
 
-**Name:** Ceasar Jackson  
+**Name:** Ceasar Jackson
 **Discord Username:** knucknuclear
 
 ## Original Grade
