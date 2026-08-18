@@ -1,0 +1,46 @@
+======================================================================
+ WEEK 5 DATA PIPELINE MAINTENANCE VALIDATION
+======================================================================
+
+===== REQUIRED FILES =====
+PASS: README exists and is non-empty
+PASS: graded submission exists and is non-empty
+
+===== STUDENT IDENTIFICATION =====
+PASS: student name present
+PASS: Discord username present
+
+===== REQUIRED PIPELINES =====
+PASS: Unit-Level Profit
+PASS: Aggregate Profit
+PASS: Aggregate Growth
+PASS: Daily Growth
+PASS: Aggregate Engagement
+
+===== REQUIRED ASSIGNMENT COMPONENTS =====
+PASS: Pipeline Inventory and Ownership
+PASS: Primary Owner
+PASS: Secondary Owner
+PASS: Fair On-Call Schedule
+PASS: Holiday and Time-Off Policy
+PASS: Aggregate Profit Pipeline Runbook
+PASS: Aggregate Growth Pipeline Runbook
+PASS: Aggregate Engagement Pipeline Runbook
+PASS: Potential Problems Across All Five Pipelines
+
+===== CONTENT HYGIENE =====
+PASS: no terminal/heredoc artifacts
+PASS: no trailing whitespace
+
+===== FILE STATISTICS =====
+      76     255    1888 /Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp_pipeline_maintenance/data_pipeline_maintenance/week05_pipeline_maintenance/README.md
+     576    2370   16364 /Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp_pipeline_maintenance/data_pipeline_maintenance/week05_pipeline_maintenance/submission/data_pipeline_maintenance.md
+     652    2625   18252 total
+
+===== HASHES =====
+f0ed418568c9e483edaa4d98cdde90e8f74b436ab6bd9ddabff08ee2e2375f61  /Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp_pipeline_maintenance/data_pipeline_maintenance/week05_pipeline_maintenance/README.md
+8f79a14e3decbc65ed03643c61844d2ca6ef1d5f1d8c8708a0018970e52471fe  /Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp_pipeline_maintenance/data_pipeline_maintenance/week05_pipeline_maintenance/submission/data_pipeline_maintenance.md
+
+======================================================================
+ VALIDATION COMPLETE — 20 CHECKS PASSED
+======================================================================
