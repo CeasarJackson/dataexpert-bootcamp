@@ -97,7 +97,7 @@ EXPECTED_SHEETS = (
 )
 
 EXPECTED_DASHBOARD_SHEETS = (
-    "KPI 01A — Matches with Player Data",
+    "KPI 01 — Matches with Player Data",
     "KPI 02 — Unique Players",
     "KPI 03 — Total Kills",
     "KPI 04 — Overall K/D",
@@ -374,220 +374,48 @@ def normalize_kpi_card_presentation(text: str) -> str:
     return text
 
 
-def normalize_kpi01_window_state(text: str) -> str:
-    """Normalize KPI 01 worksheet/window metadata to the working KPI pattern."""
+def promote_kpi01_for_candidate(text: str) -> str:
+    """
+    Replace the stale KPI 01 worksheet with a completely fresh serialization
+    cloned from the proven-good KPI 02 worksheet.
 
-    worksheet_name = "KPI 01 — Matches with Player Data"
+    This candidate-only production promotion preserves the successful KPI 01A
+    experiment while restoring the final worksheet name.
 
-    match = re.search(worksheet_block_pattern(worksheet_name), text)
-    if not match:
-        fail(f"Unable to locate worksheet: {worksheet_name}")
+    Production behavior:
+        * clone KPI 02's known-good worksheet structure
+        * substitute matches_with_player_data semantics
+        * use the verified 20pt KPI value and 12pt descriptive label
+        * generate a genuinely new worksheet UUID
+        * replace the stale original KPI 01 worksheet
+        * remove stale KPI 01 worksheet-window metadata
 
-    original_ws = match.group(1)
-    updated_ws = original_ws
-
-    old_column = (
-        "<column caption='Matches With Player Data' "
-        "datatype='integer' "
-        "name='[matches_with_player_data]' "
-        "role='measure' type='quantitative' />"
-    )
-
-    new_column = (
-        "<column caption='Matches With Player Data' "
-        "datatype='integer' "
-        "default-format='n#,##0;-#,##0' "
-        "name='[matches_with_player_data]' "
-        "role='measure' type='quantitative' />"
-    )
-
-    if old_column not in updated_ws:
-        fail(
-            "Unable to locate KPI 01 field definition for explicit "
-            "number-format normalization."
-        )
-
-    updated_ws = updated_ws.replace(old_column, new_column, 1)
-
-    show_only = "<format attr='mark-labels-show' value='true' />"
-    show_and_cull = (
-        "<format attr='mark-labels-show' value='true' />\n"
-        "                <format attr='mark-labels-cull' value='true' />"
-    )
-
-    if "mark-labels-cull" not in updated_ws:
-        if show_only not in updated_ws:
-            fail("Unable to locate KPI 01 mark-label style.")
-        updated_ws = updated_ws.replace(show_only, show_and_cull, 1)
-
-    text = text.replace(original_ws, updated_ws, 1)
-
-    window_patterns = (
-        r"(<window\b[^>]*class='worksheet'[^>]*name='"
-        + re.escape(worksheet_name)
-        + r"'[^>]*>[\s\S]*?</window>)",
-        r"(<window\b[^>]*name='"
-        + re.escape(worksheet_name)
-        + r"'[^>]*class='worksheet'[^>]*>[\s\S]*?</window>)",
-    )
-
-    window_match = None
-
-    for pattern in window_patterns:
-        window_match = re.search(pattern, text)
-        if window_match:
-            break
-
-    if not window_match:
-        fail(f"Unable to locate worksheet window: {worksheet_name}")
-
-    original_window = window_match.group(1)
-    updated_window = original_window
-
-    updated_window, title_count = re.subn(
-        r"<strip size='2147483647'>\s*"
-        r"<card type='title' />\s*"
-        r"</strip>",
-        "<strip size='31'>\n"
-        "            <card type='title' />\n"
-        "          </strip>",
-        updated_window,
-        count=1,
-    )
-
-    if title_count != 1:
-        fail("Expected exactly one KPI 01 title strip normalization.")
-
-    if "<zoom type='entire-view' />" not in updated_window:
-        simple_id_marker = "      <simple-id uuid="
-
-        if simple_id_marker not in updated_window:
-            fail(
-                "Unable to locate KPI 01 worksheet-window simple-id "
-                "for Entire View insertion."
-            )
-
-        viewpoint = (
-            "      <viewpoint>\n"
-            "        <zoom type='entire-view' />\n"
-            "      </viewpoint>\n"
-        )
-
-        updated_window = updated_window.replace(
-            simple_id_marker,
-            viewpoint + simple_id_marker,
-            1,
-        )
-
-    text = text.replace(original_window, updated_window, 1)
-
-    success("Normalized KPI 01 worksheet/window state to the working KPI pattern.")
-    return text
-
-
-def reconstruct_kpi01_from_kpi02(text: str) -> str:
-    """Reconstruct KPI 01 from the known-good KPI 02 worksheet pattern."""
+    The source workbook is never modified.
+    """
 
     source_name = "KPI 02 — Unique Players"
     target_name = "KPI 01 — Matches with Player Data"
-
-    source_match = re.search(worksheet_block_pattern(source_name), text)
-    target_match = re.search(worksheet_block_pattern(target_name), text)
-
-    if not source_match:
-        fail(f"Unable to locate reconstruction source: {source_name}")
-
-    if not target_match:
-        fail(f"Unable to locate reconstruction target: {target_name}")
-
-    source_ws = source_match.group(1)
-    original_target = target_match.group(1)
-
-    target_uuid_match = re.search(
-        r"<simple-id uuid='([^']+)'",
-        original_target,
-    )
-
-    if not target_uuid_match:
-        fail("Unable to read KPI 01 worksheet simple-id.")
-
-    target_uuid = target_uuid_match.group(1)
-    rebuilt = source_ws
-
-    substitutions = (
-        ("KPI 02 — Unique Players", "KPI 01 — Matches with Player Data"),
-        ("[sum:unique_players:qk]", "[sum:matches_with_player_data:qk]"),
-        ("[unique_players]", "[matches_with_player_data]"),
-        ("Unique Players", "Matches With Player Data"),
-    )
-
-    for old_value, new_value in substitutions:
-        if old_value not in rebuilt:
-            fail("Expected KPI 02 reconstruction token missing: " + old_value)
-        rebuilt = rebuilt.replace(old_value, new_value)
-
-    rebuilt, uuid_count = re.subn(
-        r"<simple-id uuid='[^']+'",
-        f"<simple-id uuid='{target_uuid}'",
-        rebuilt,
-        count=1,
-    )
-
-    if uuid_count != 1:
-        fail("Unable to restore KPI 01 worksheet simple-id.")
-
-    required = (
-        "name='KPI 01 — Matches with Player Data'",
-        "column='[matches_with_player_data]'",
-        "name='[sum:matches_with_player_data:qk]'",
-        "[sum:matches_with_player_data:qk]",
-        "Matches With Player Data",
-        "fontsize='24'",
-        "mark-labels-cull",
-        "mark-labels-show",
-    )
-
-    for token in required:
-        if token not in rebuilt:
-            fail("Reconstructed KPI 01 missing required token: " + token)
-
-    forbidden = (
-        "unique_players",
-        "Unique Players",
-        "default-format='n#,##0;-#,##0'",
-    )
-
-    for token in forbidden:
-        if token in rebuilt:
-            fail("Reconstructed KPI 01 contains unexpected token: " + token)
-
-    text = text.replace(original_target, rebuilt, 1)
-
-    success("Reconstructed KPI 01 from the known-good KPI 02 worksheet pattern.")
-    return text
-
-
-def create_fresh_kpi01_test_worksheet(text: str) -> str:
-    """Create a new candidate-only KPI 01A worksheet from KPI 02."""
-
-    source_name = "KPI 02 — Unique Players"
-    fresh_name = "KPI 01A — Matches with Player Data"
-
-    if fresh_name in text:
-        fail("Fresh KPI 01A test worksheet already exists in candidate text.")
 
     source_match = re.search(
         worksheet_block_pattern(source_name),
         text,
     )
 
+    target_match = re.search(
+        worksheet_block_pattern(target_name),
+        text,
+    )
+
     if not source_match:
-        fail("Unable to locate KPI 02 source worksheet for fresh KPI test.")
+        fail("Unable to locate KPI 02 production template worksheet.")
+
+    if not target_match:
+        fail("Unable to locate stale KPI 01 worksheet for replacement.")
 
     fresh_ws = source_match.group(1)
 
     substitutions = (
-        ("KPI 02 — Unique Players", fresh_name),
+        ("KPI 02 — Unique Players", target_name),
         ("[sum:unique_players:qk]", "[sum:matches_with_player_data:qk]"),
         ("[unique_players]", "[matches_with_player_data]"),
         ("Unique Players", "Matches With Player Data"),
@@ -595,12 +423,10 @@ def create_fresh_kpi01_test_worksheet(text: str) -> str:
 
     for old_value, new_value in substitutions:
         if old_value not in fresh_ws:
-            fail("Fresh KPI worksheet source token missing: " + old_value)
+            fail("Production KPI 01 template token missing: " + old_value)
         fresh_ws = fresh_ws.replace(old_value, new_value)
 
-    # KPI 01A has a wider aggregate value than KPI 02. Reduce only the
-    # numeric mark from 24 pt to 20 pt so Tableau can render the full value
-    # inside the fixed-width executive-dashboard KPI card.
+    # Preserve the exact presentation that visually succeeded as KPI 01A.
     fresh_ws, value_font_count = re.subn(
         r"<run fontsize='24'>(<!\[CDATA\[<"
         r"\[federated\.0mvsqey1l1l9bz1ci24fn0qxcphu\]"
@@ -612,10 +438,8 @@ def create_fresh_kpi01_test_worksheet(text: str) -> str:
     )
 
     if value_font_count != 1:
-        fail("Unable to apply KPI 01A numeric font-size normalization.")
+        fail("Unable to apply production KPI 01 value font normalization.")
 
-    # Reduce only KPI 01A's descriptive mark label so the long caption fits
-    # the fixed-width KPI card more cleanly.
     old_label = (
         "<run fontname='Benton Sans Book' "
         "fontsize='14'>Matches With Player Data</run>"
@@ -626,10 +450,11 @@ def create_fresh_kpi01_test_worksheet(text: str) -> str:
     )
 
     if old_label not in fresh_ws:
-        fail("Unable to locate KPI 01A descriptive label for font refinement.")
+        fail("Unable to locate production KPI 01 descriptive label.")
 
     fresh_ws = fresh_ws.replace(old_label, new_label, 1)
 
+    # New worksheet identity: do not reuse the stale KPI 01 simple-id.
     fresh_ws, uuid_count = re.subn(
         r"<simple-id uuid='[^']+'",
         f"<simple-id uuid='{{{str(uuid.uuid4()).upper()}}}'",
@@ -638,45 +463,154 @@ def create_fresh_kpi01_test_worksheet(text: str) -> str:
     )
 
     if uuid_count != 1:
-        fail("Unable to generate fresh KPI 01A worksheet simple-id.")
+        fail("Unable to generate fresh production KPI 01 worksheet UUID.")
 
+    # Replace, rather than duplicate, the stale worksheet.
     text = text.replace(
-        source_match.group(1),
-        source_match.group(1) + "\n    " + fresh_ws,
+        target_match.group(1),
+        fresh_ws,
         1,
     )
 
-    fresh_match = re.search(
-        worksheet_block_pattern(fresh_name),
+    # The successful KPI 01A worksheet had no legacy worksheet-window state.
+    # Remove KPI 01's old worksheet window so the production sheet has the
+    # same clean identity characteristics.
+    window_patterns = (
+        r"\s*<window\b[^>]*class='worksheet'[^>]*name='"
+        + re.escape(target_name)
+        + r"'[^>]*>[\s\S]*?</window>",
+        r"\s*<window\b[^>]*name='"
+        + re.escape(target_name)
+        + r"'[^>]*class='worksheet'[^>]*>[\s\S]*?</window>",
+    )
+
+    removed = 0
+
+    for pattern in window_patterns:
+        text, count = re.subn(
+            pattern,
+            "",
+            text,
+            count=1,
+        )
+        if count:
+            removed = count
+            break
+
+    if removed != 1:
+        fail("Expected exactly one stale KPI 01 worksheet window.")
+
+    # Production invariants.
+    production_matches = re.findall(
+        worksheet_block_pattern(target_name),
         text,
     )
 
-    if not fresh_match:
-        fail("Fresh KPI 01A worksheet was not inserted.")
+    if len(production_matches) != 1:
+        fail(
+            "Expected exactly one production KPI 01 worksheet; found "
+            + str(len(production_matches))
+        )
 
-    fresh = fresh_match.group(0)
+    production_ws = production_matches[0]
 
     required = (
-        fresh_name,
+        target_name,
         "[matches_with_player_data]",
         "[sum:matches_with_player_data:qk]",
         "Matches With Player Data",
         "fontsize='20'",
+        "fontsize='12'",
         "mark-labels-show",
         "mark-labels-cull",
     )
 
     for token in required:
-        if token not in fresh:
-            fail("Fresh KPI 01A missing required token: " + token)
+        if token not in production_ws:
+            fail("Production KPI 01 missing required token: " + token)
 
-    forbidden = ("unique_players", "Unique Players")
+    forbidden = (
+        "unique_players",
+        "Unique Players",
+        "KPI 01A",
+    )
+
     for token in forbidden:
-        if token in fresh:
-            fail("Fresh KPI 01A retained KPI 02 token: " + token)
+        if token in production_ws:
+            fail("Production KPI 01 contains unexpected token: " + token)
 
-    success("Created fresh KPI 01A worksheet from known-good KPI 02 serialization.")
+    success(
+        "Promoted fresh KPI 01 implementation to production worksheet identity."
+    )
+
     return text
+
+
+def remove_bootstrap_dashboard2(candidate_text: str) -> str:
+    """
+    Remove Tableau's bootstrap Dashboard 2 from the generated candidate.
+
+    Dashboard 2 is retained long enough for clone_dashboard_window() to harvest
+    Tableau-generated dashboard-window syntax. It is removed only from the
+    completed candidate so the fresh production KPI 01 has no legacy Dashboard 2
+    ownership.
+    """
+
+    dashboard_patterns = (
+        r"\s*<dashboard\b[^>]*name='Dashboard 2'[^>]*>"
+        r"[\s\S]*?</dashboard>",
+        r'\s*<dashboard\b[^>]*name="Dashboard 2"[^>]*>'
+        r"[\s\S]*?</dashboard>",
+    )
+
+    dashboard_removed = 0
+
+    for pattern in dashboard_patterns:
+        candidate_text, count = re.subn(
+            pattern,
+            "",
+            candidate_text,
+            count=1,
+        )
+        if count:
+            dashboard_removed = count
+            break
+
+    if dashboard_removed != 1:
+        fail("Expected exactly one bootstrap Dashboard 2 definition.")
+
+    window_patterns = (
+        r"\s*<window\b[^>]*class='dashboard'[^>]*name='Dashboard 2'[^>]*>"
+        r"[\s\S]*?</window>",
+        r"\s*<window\b[^>]*name='Dashboard 2'[^>]*class='dashboard'[^>]*>"
+        r"[\s\S]*?</window>",
+        r'\s*<window\b[^>]*class="dashboard"[^>]*name="Dashboard 2"[^>]*>'
+        r"[\s\S]*?</window>",
+        r'\s*<window\b[^>]*name="Dashboard 2"[^>]*class="dashboard"[^>]*>'
+        r"[\s\S]*?</window>",
+    )
+
+    window_removed = 0
+
+    for pattern in window_patterns:
+        candidate_text, count = re.subn(
+            pattern,
+            "",
+            candidate_text,
+            count=1,
+        )
+        if count:
+            window_removed = count
+            break
+
+    if window_removed != 1:
+        fail("Expected exactly one bootstrap Dashboard 2 window.")
+
+    success("Removed bootstrap Dashboard 2 from generated candidate.")
+
+    return candidate_text
+
+
 
 
 # ---------------------------------------------------------------------------
@@ -762,7 +696,7 @@ def build_dashboard_xml() -> str:
     )
 
     kpis = [
-        "KPI 01A — Matches with Player Data",
+        "KPI 01 — Matches with Player Data",
         "KPI 02 — Unique Players",
         "KPI 03 — Total Kills",
         "KPI 04 — Overall K/D",
@@ -1012,9 +946,7 @@ def main() -> None:
     # Candidate-only KPI transformations.
     text = normalize_kpi06(text)
     text = normalize_kpi_card_presentation(text)
-    text = normalize_kpi01_window_state(text)
-    text = reconstruct_kpi01_from_kpi02(text)
-    text = create_fresh_kpi01_test_worksheet(text)
+    text = promote_kpi01_for_candidate(text)
 
     # Validate verified SOURCE worksheet names before any source/candidate rename.
     missing = []
@@ -1088,6 +1020,11 @@ def main() -> None:
         )
 
         success("Cloned Dashboard 2 window metadata for candidate dashboard.")
+
+    # Dashboard 2 was scaffolding only. Remove it after harvesting its
+    # Tableau-generated window syntax so production KPI 01 has no legacy
+    # bootstrap-dashboard ownership.
+    candidate_text = remove_bootstrap_dashboard2(candidate_text)
 
     candidate.write_text(candidate_text, encoding="utf-8")
 

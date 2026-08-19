@@ -1713,9 +1713,9 @@
             </encodings>
             <customized-label>
               <formatted-text>
-                <run fontsize='24'><![CDATA[<[federated.0mvsqey1l1l9bz1ci24fn0qxcphu].[sum:matches_with_player_data:qk]>]]></run>
+                <run fontsize='20'><![CDATA[<[federated.0mvsqey1l1l9bz1ci24fn0qxcphu].[sum:matches_with_player_data:qk]>]]></run>
                 <run>Æ&#10;</run>
-                <run fontname='Benton Sans Book' fontsize='14'>Matches With Player Data</run>
+                <run fontname='Benton Sans Book' fontsize='12'>Matches With Player Data</run>
                 
               </formatted-text>
             </customized-label>
@@ -1730,7 +1730,7 @@
         <rows />
         <cols />
       </table>
-      <simple-id uuid='{6D38E8BC-546A-44D1-92EC-1CBE0825743A}' />
+      <simple-id uuid='{A52EEB9D-098B-4104-B81D-620748EF15E8}' />
     </worksheet>
     <worksheet name='KPI 02 — Unique Players'>
       <table>
@@ -1774,49 +1774,6 @@
         <cols />
       </table>
       <simple-id uuid='{FB01465B-B08A-453D-8E3F-C5F26A190047}' />
-    </worksheet>
-    <worksheet name='KPI 01A — Matches with Player Data'>
-      <table>
-        <view>
-          <datasources>
-            <datasource caption='executive_kpis' name='federated.0mvsqey1l1l9bz1ci24fn0qxcphu' />
-          </datasources>
-          <datasource-dependencies datasource='federated.0mvsqey1l1l9bz1ci24fn0qxcphu'>
-            <column-instance column='[matches_with_player_data]' derivation='Sum' name='[sum:matches_with_player_data:qk]' pivot='key' type='quantitative' />
-            <column caption='Matches With Player Data' datatype='integer' name='[matches_with_player_data]' role='measure' type='quantitative' />
-          </datasource-dependencies>
-          <aggregation value='true' />
-        </view>
-        <style />
-        <panes>
-          <pane selection-relaxation-option='selection-relaxation-allow'>
-            <view>
-              <breakdown value='auto' />
-            </view>
-            <mark class='Automatic' />
-            <encodings>
-              <text column='[federated.0mvsqey1l1l9bz1ci24fn0qxcphu].[sum:matches_with_player_data:qk]' />
-            </encodings>
-            <customized-label>
-              <formatted-text>
-                <run fontsize='20'><![CDATA[<[federated.0mvsqey1l1l9bz1ci24fn0qxcphu].[sum:matches_with_player_data:qk]>]]></run>
-                <run>Æ&#10;</run>
-                <run fontname='Benton Sans Book' fontsize='12'>Matches With Player Data</run>
-                
-              </formatted-text>
-            </customized-label>
-            <style>
-              <style-rule element='mark'>
-                <format attr='mark-labels-cull' value='true' />
-                <format attr='mark-labels-show' value='true' />
-              </style-rule>
-            </style>
-          </pane>
-        </panes>
-        <rows />
-        <cols />
-      </table>
-      <simple-id uuid='{A450211A-45F8-4AFD-A597-D99D728F704C}' />
     </worksheet>
     <worksheet name='KPI 03 — Total Kills'>
       <table>
@@ -2054,55 +2011,6 @@
       </devicelayouts>
       <simple-id uuid='{C9ABB24C-316D-43CE-82F9-60B11E14A232}' />
     </dashboard>
-    <dashboard enable-sort-zone-taborder='true' name='Dashboard 2'>
-      <style />
-      <size maxheight='800' maxwidth='1000' minheight='800' minwidth='1000' />
-      <zones>
-        <zone h='100000' id='4' type-v2='layout-basic' w='100000' x='0' y='0'>
-          <zone h='98000' id='3' name='KPI 01 — Matches with Player Data' w='98400' x='800' y='1000'>
-            <zone-style>
-              <format attr='border-color' value='#000000' />
-              <format attr='border-style' value='none' />
-              <format attr='border-width' value='0' />
-              <format attr='margin' value='4' />
-            </zone-style>
-          </zone>
-          <zone-style>
-            <format attr='border-color' value='#000000' />
-            <format attr='border-style' value='none' />
-            <format attr='border-width' value='0' />
-            <format attr='margin' value='8' />
-          </zone-style>
-        </zone>
-      </zones>
-      <devicelayouts>
-        <devicelayout auto-generated='true' name='Phone'>
-          <size maxheight='700' minheight='700' sizing-mode='vscroll' />
-          <zones>
-            <zone h='100000' id='6' type-v2='layout-basic' w='100000' x='0' y='0'>
-              <zone h='98000' id='5' param='vert' type-v2='layout-flow' w='98400' x='800' y='1000'>
-                <zone fixed-size='280' h='98000' id='3' is-fixed='true' name='KPI 01 — Matches with Player Data' w='98400' x='800' y='1000'>
-                  <zone-style>
-                    <format attr='border-color' value='#000000' />
-                    <format attr='border-style' value='none' />
-                    <format attr='border-width' value='0' />
-                    <format attr='margin' value='4' />
-                    <format attr='padding' value='0' />
-                  </zone-style>
-                </zone>
-              </zone>
-              <zone-style>
-                <format attr='border-color' value='#000000' />
-                <format attr='border-style' value='none' />
-                <format attr='border-width' value='0' />
-                <format attr='margin' value='8' />
-              </zone-style>
-            </zone>
-          </zones>
-        </devicelayout>
-      </devicelayouts>
-      <simple-id uuid='{83EEB886-1515-4E32-A4D1-E28D301E92E5}' />
-    </dashboard>
     <dashboard name='Story 1' type='storyboard'>
       <style />
       <size maxheight='964' maxwidth='1016' minheight='964' minwidth='1016' />
@@ -2147,7 +2055,7 @@
               <format attr='margin' value='4' />
             </zone-style>
           </zone>
-          <zone h='16500' id='20' name='KPI 01A — Matches with Player Data' w='16066' x='800' y='8500'>
+          <zone h='16500' id='20' name='KPI 01 — Matches with Player Data' w='16066' x='800' y='8500'>
             <zone-style>
               <format attr='border-color' value='#000000' />
               <format attr='border-style' value='none' />
@@ -2251,36 +2159,10 @@
           </zone-style>
         </zone>
       </zones>
-      <simple-id uuid='{C1C6DB35-DA19-4EC2-995E-23072C87C87F}' />
+      <simple-id uuid='{C2931CEA-5831-4D21-AB15-06B3374306BD}' />
     </dashboard>
   </dashboards>
   <windows source-height='114'>
-    <window class='worksheet' name='KPI 01 — Matches with Player Data'>
-      <cards>
-        <edge name='left'>
-          <strip size='160'>
-            <card type='pages' />
-            <card type='filters' />
-            <card type='marks' />
-          </strip>
-        </edge>
-        <edge name='top'>
-          <strip size='2147483647'>
-            <card type='columns' />
-          </strip>
-          <strip size='2147483647'>
-            <card type='rows' />
-          </strip>
-          <strip size='31'>
-            <card type='title' />
-          </strip>
-        </edge>
-      </cards>
-      <viewpoint>
-        <zoom type='entire-view' />
-      </viewpoint>
-      <simple-id uuid='{0BA2CC31-31E9-4458-AA9C-C0CBFFFA49D7}' />
-    </window>
     <window class='worksheet' name='KPI 02 — Unique Players'>
       <cards>
         <edge name='left'>
@@ -2723,18 +2605,9 @@
       <active id='-1' />
       <simple-id uuid='{B6890B01-E542-4F41-B108-25B41FD61CC5}' />
     </window>
-    <window class='dashboard' maximized='true' name='Dashboard 2'>
-      <viewpoints>
-        <viewpoint name='KPI 01 — Matches with Player Data'>
-          <zoom type='entire-view' />
-        </viewpoint>
-      </viewpoints>
-      <active id='-1' />
-      <simple-id uuid='{8A3772B0-0F88-49C8-A6D1-0272BEBB576B}' />
-    </window>
 <window class='dashboard' maximized='true' name='EXECUTIVE DASHBOARD — Halo Performance'>
       <viewpoints>
-        <viewpoint name='KPI 01A — Matches with Player Data'>
+        <viewpoint name='KPI 01 — Matches with Player Data'>
           <zoom type='entire-view' />
         </viewpoint>
         <viewpoint name='KPI 02 — Unique Players'>
@@ -2772,7 +2645,7 @@
         </viewpoint>
       </viewpoints>
       <active id='-1' />
-      <simple-id uuid='{657B3DDF-F47E-479C-AA3F-745FAFFA1676}' />
+      <simple-id uuid='{99E2F62F-DED3-4E74-8710-902389BD84D4}' />
     </window>
   </windows>
   <thumbnails>
