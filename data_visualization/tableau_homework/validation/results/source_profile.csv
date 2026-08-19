@@ -1,0 +1,42 @@
+category,metric,value
+row_count,match_details,151761
+row_count,matches,24025
+row_count,medals,183
+row_count,medals_matches_players,755229
+grain,matches_duplicate_match_id,0
+grain,match_details_duplicate_match_player,0
+grain,mmp_duplicate_match_player_medal,0
+grain,medals_duplicate_medal_id,0
+null_count,match_details.match_id,0
+null_count,match_details.player_gamertag,0
+null_count,match_details.player_total_kills,0
+null_count,match_details.player_total_deaths,0
+null_count,match_details.did_win,0
+null_count,matches.match_id,0
+null_count,matches.mapid,0
+null_count,matches.playlist_id,0
+null_count,matches.completion_date,0
+null_count,mmp.match_id,0
+null_count,mmp.player_gamertag,0
+null_count,mmp.medal_id,0
+null_count,mmp.count,0
+null_count,medals.medal_id,0
+null_count,medals.name,2
+null_count,medals.classification,2
+null_count,medals.difficulty,2
+cardinality,matches,24025
+cardinality,players,69420
+cardinality,maps,25
+cardinality,playlists,27
+cardinality,game_variants,12
+cardinality,teams,8
+cardinality,medal_ids_dimension,183
+cardinality,medal_ids_fact,142
+join_coverage,match_details distinct match_ids,19050
+join_coverage,match_details match_ids absent from matches,0
+join_coverage,mmp distinct match_ids,18942
+join_coverage,mmp match_ids absent from matches,0
+join_coverage,mmp distinct medal_ids,142
+join_coverage,mmp medal_ids absent from medals,0
+date_range,minimum_completion_date,2015-10-27 00:00:00
+date_range,maximum_completion_date,2016-09-28 00:00:00

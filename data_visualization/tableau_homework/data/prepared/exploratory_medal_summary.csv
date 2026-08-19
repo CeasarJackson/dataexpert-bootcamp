@@ -1,0 +1,137 @@
+medal_name,medal_classification,medal_difficulty,medal_count,unique_players,distinct_matches
+Headshot,WeaponProficiency,60,649234,54492,18200
+Double Kill,MultiKill,45,110617,34797,17961
+Distraction,Style,150,78362,31499,17465
+Melee Kill,Style,220,61878,26961,16283
+Reversal,Style,115,60813,23190,15761
+Close Call,Style,155,58060,25751,13470
+Protector,Style,145,45758,21660,12476
+Team Takedown,Style,245,36389,14726,6540
+Killing Spree,KillingSpree,45,34901,17840,15513
+Stronghold Captured,Strongholds,15,34009,6905,875
+Sniper Headshot,WeaponProficiency,50,28306,7664,3268
+Brawler,Style,195,26103,13156,9183
+Spartan Charge,Style,135,20453,10138,9968
+Total Control,Strongholds,5,18505,5601,855
+First Strike,Style,180,17694,10907,17693
+Stronghold Defense,Strongholds,20,16225,5260,874
+Perfect Kill,WeaponProficiency,40,14268,7806,6164
+Perfect Kill,WeaponProficiency,45,13838,7541,4228
+Triple Kill,MultiKill,40,12642,6657,6808
+Carrier Kill,CaptureTheFlag,40,12348,6363,3741
+From the Grave,Style,165,12298,8371,6505
+Beat Down,Style,185,11988,8187,7667
+Vanquisher,Breakout,30,8571,4738,5279
+Top Gun,Style,20,7980,5035,7977
+Hail Mary,Style,160,7914,4384,5259
+Ball Carrier Kill,Ball,30,7454,1941,422
+Capture Assist,Strongholds,40,6982,4050,863
+Snapshot,WeaponProficiency,15,6578,3215,2051
+Big Game Hunter,Style,50,6387,2990,1056
+Unknown Medal (2315448068),Unknown,Unknown,5910,1590,428
+Ground Pound,Style,140,5340,3383,3563
+Cliffhanger,Style,85,5323,3920,4290
+Flag Defense,CaptureTheFlag,55,5217,2742,790
+Longshot,WeaponProficiency,55,5183,2918,2229
+Assassination,Style,190,4995,3681,3662
+Goal Defense,Ball,35,4629,1645,426
+Last Shot,Style,175,4236,3122,3379
+Splatter,Vehicles,40,4113,2168,964
+Flag Kill,CaptureTheFlag,35,3780,2308,2184
+Wheelman,Vehicles,150,3578,1189,659
+Flag Capture,CaptureTheFlag,50,3525,2324,1961
+Bifecta,Breakout,25,3510,2225,2838
+Stuck,Style,130,3503,2496,2597
+Power Player,WeaponProficiency,80,3110,2371,1111
+Ghost Assist,Vehicles,140,3039,2429,811
+Ghost Destroyed,Vehicles,85,2864,2284,902
+Perfect Kill,WeaponProficiency,35,2411,1609,1351
+First Touch,Ball,55,2403,1121,431
+Big Gun Runner,WeaponProficiency,75,2399,2052,1882
+Stealth Capture,CaptureTheFlag,10,2337,1541,1879
+Flag Capture Assist,CaptureTheFlag,60,2248,1619,1118
+Hat Trick,WeaponProficiency,20,2195,1530,1156
+Goal,Ball,20,2160,1045,429
+Overkill,MultiKill,35,2142,1285,1648
+Hijack,Vehicles,35,1988,1624,805
+Starkiller,Style,235,1940,1596,1524
+Killing Frenzy,KillingSpree,40,1816,1363,1567
+Gun Punch,Style,170,1767,1369,1591
+Extinction,Breakout,35,1740,1220,1564
+Team Takedown,Style,240,1724,1473,1215
+Wingman,Style,35,1691,1379,1313
+Nadeshot,Style,125,1572,1258,1451
+Warthog Assist,Vehicles,135,1541,1305,524
+Triple Double,Style,15,1513,1287,833
+Warthog Destroyed,Vehicles,80,1324,1140,607
+Fast Break,Breakout,55,1294,822,689
+Buckle Up,Vehicles,5,1080,719,433
+Noob Combo,Style,120,1012,707,706
+Carrier Protected,CaptureTheFlag,45,1010,834,815
+Mongoose Destroyed,Vehicles,90,1007,887,517
+EMP Assist,Style,210,989,783,748
+Cluster Luck,Style,75,938,820,881
+Capture Spree,Strongholds,10,917,660,470
+Trifecta,Breakout,20,870,680,825
+Snipunch,WeaponProficiency,70,864,656,514
+Mongoose Assist,Vehicles,145,860,755,377
+Airborne Snapshot!,WeaponProficiency,10,814,613,546
+Quickdraw,Style,200,803,669,757
+Hard Target,Style,105,749,661,680
+Perfect Kill,WeaponProficiency,25,684,528,547
+Unknown Medal (3565441934),Unknown,Unknown,674,401,142
+Bulltrue,Style,45,658,540,458
+Perfect Kill,WeaponProficiency,30,619,479,491
+Immortal,Breakout,5,592,421,475
+Ball Runner,Ball,15,542,435,343
+Killtacular,MultiKill,30,486,328,430
+Flag Runner,CaptureTheFlag,25,428,351,408
+Rocket Mary,WeaponProficiency,65,425,345,296
+Stopped Short,CaptureTheFlag,5,409,335,277
+Retribution,Style,110,402,379,387
+Banshee Assist,Vehicles,130,385,335,131
+Ball Carrier Protected,Ball,50,366,280,222
+BXR,Style,90,360,335,333
+Scorpion Assist,Vehicles,115,326,292,124
+Banshee Destroyed,Vehicles,75,315,281,147
+Scorpion Destroyed,Vehicles,60,299,277,141
+Busted,Vehicles,10,266,257,229
+Blind Side,Breakout,40,248,215,240
+Bodyguard,Style,40,239,218,235
+Showstopper,Style,30,210,201,203
+Perfect Kill,WeaponProficiency,22,207,98,46
+Running Riot,KillingSpree,35,207,187,195
+Game Saver,Style,80,206,196,199
+Mantis Assist,Vehicles,125,193,180,72
+Flag Driver,CaptureTheFlag,3,188,163,133
+Flag Joust,CaptureTheFlag,30,187,171,162
+Ball Champion,Ball,10,182,149,171
+Mantis Destroyed,Vehicles,70,181,164,90
+Skyjack,Vehicles,230,164,154,103
+Killtrocity,MultiKill,25,142,116,137
+Clutch Kill,Style,25,130,93,54
+Wraith Assist,Vehicles,120,105,99,44
+Road Trip,Vehicles,25,101,94,39
+Fastball,Style,65,97,92,96
+Wraith Destroyed,Vehicles,65,85,80,54
+Combat Evolved,Style,205,81,77,76
+Superfecta,Breakout,10,80,75,80
+Ball Kill,Ball,25,69,28,11
+Flag Champion,CaptureTheFlag,20,58,49,58
+Killamanjaro,MultiKill,20,46,41,46
+Snipeltaneous!,WeaponProficiency,5,40,39,40
+Rampage,KillingSpree,30,36,34,35
+Pounder,Style,61,29,28,28
+Pounder Assist,Style,60,29,29,28
+Airsassination,Style,70,28,27,26
+Pineapple Express,Vehicles,3,23,20,22
+Flagsassination,CaptureTheFlag,15,19,17,18
+Killtastrophe,MultiKill,15,19,17,19
+Alley-Oop,Style,5,13,13,13
+Perfection,KillingSpree,5,13,13,13
+Killpocalypse,MultiKill,10,8,8,8
+Untouchable,KillingSpree,25,7,6,7
+Killionaire,MultiKill,5,4,4,4
+Extermination,MultiKill,55,3,3,3
+Sayonara,Style,225,3,3,3
+Invincible,KillingSpree,20,2,2,2

@@ -1,0 +1,28 @@
+{
+  "cardinalities": {
+    "distinct_matches_with_details": 19050,
+    "distinct_medal_names": 130,
+    "distinct_players": 69420
+  },
+  "executive_kpis": {
+    "total_assists": 446286,
+    "total_deaths": 1368392,
+    "total_kills": 1350442,
+    "total_medals_awarded": 1560446,
+    "winning_player_rows": 72798
+  },
+  "grain": {
+    "player_match": "match_id + player_gamertag",
+    "player_medal": "match_id + player_gamertag + medal_id"
+  },
+  "prepared": {
+    "player_match_rows": 151761,
+    "player_medal_rows": 755229
+  },
+  "source": {
+    "match_details_rows": 151761,
+    "matches_rows": 24025,
+    "medals_matches_players_rows": 755229,
+    "medals_rows": 183
+  }
+}
