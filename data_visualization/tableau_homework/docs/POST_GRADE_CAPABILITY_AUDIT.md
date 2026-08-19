@@ -116,11 +116,25 @@ The lookup contains:
 Audit results for the player-detail dataset:
 
 - Distinct detail map IDs: 16
-- Matched map IDs: 16
-- Missing map IDs: 0
-- Coverage: 100%
+- Map IDs with lookup rows: 16
+- Missing lookup rows: 0
+- Lookup-row coverage: 100%
+- Source-provided human-readable names: 14
+- Blank source map names: 2
 
-Therefore Map is supported as a human-readable dashboard dimension.
+Therefore Map is supported as a dashboard dimension, with an important
+metadata limitation: two analytical map IDs have valid lookup rows but blank
+source-provided names.
+
+Post-grade aggregates preserve those maps and use deterministic, explicitly
+non-authoritative display labels derived from the first eight characters of
+the map ID:
+
+- `Unnamed Map (cc74f4e1)`
+- `Unnamed Map (ce89a40f)`
+
+This prevents the 629 affected matches from being dropped or combined while
+avoiding invention of unsupported map names.
 
 ## Playlist Metadata
 
@@ -142,7 +156,7 @@ UUID values should not be exposed as primary dashboard labels.
 | Win Rate | Supported | `did_win`, `win_flag` |
 | Player filter | Supported | `player_gamertag` |
 | Date/timeframe filter | Supported | `completion_date` |
-| Human-readable Map filter | Supported | 100% `maps.csv` lookup coverage |
+| Map filter | Supported with fallback labels | 100% lookup-row coverage; 14/16 analytical maps have source-provided names; 2 retain deterministic unnamed-map labels |
 | Playlist segmentation | ID only | No playlist-name lookup found |
 | Game variant segmentation | ID only | No human-readable lookup verified |
 | Team-game segmentation | Supported | `is_team_game` |
@@ -165,7 +179,7 @@ The following capabilities are approved for post-grade implementation:
 3. Add prior-period context where calculations are valid.
 4. Add a concise executive summary.
 5. Add KDA as an explicitly documented analytical metric.
-6. Add human-readable Map segmentation.
+6. Add Map segmentation using authoritative names where available and deterministic fallback labels for blank source names.
 7. Add Player filtering where appropriate.
 8. Add Date/Timeframe filtering.
 9. Add Team Game segmentation where analytically useful.
