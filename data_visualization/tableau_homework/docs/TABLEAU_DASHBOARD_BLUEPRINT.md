@@ -109,7 +109,7 @@ Structure:
 
 ---
 
-# Dashboard 2 — Halo Player & Medal Explorer
+# Dashboard 2 — Halo Player and Medal Explorer
 
 ## Audience
 
@@ -285,10 +285,14 @@ Recommended file:
 Required contents:
 
 Executive Dashboard:
-https://public.tableau.com/views/...
+https://public.tableau.com/views/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605/HaloMultiplayerPerformanceExecutiveOverview
 
 Exploratory Dashboard:
-https://public.tableau.com/views/...
+https://public.tableau.com/views/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605/HaloPlayerMedalExplorer
+
+Verified Tableau Public URLs are recorded in:
+
+`tableau_public_links.txt`
 
 Do not submit placeholder URLs.
 
