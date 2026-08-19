@@ -2,6 +2,10 @@
   "workbook": "/Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp/data_visualization/tableau_homework/tableau/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605.twb",
   "worksheets": [
     "EXEC 00 \u2014 Player Combat Performance",
+    "EXEC 01 \u2014 Matches Over Time",
+    "EXEC 02 \u2014 Combat Performance Trend",
+    "EXEC 03 \u2014 Top Established Players",
+    "EXEC 04 \u2014 Top Medal Distribution",
     "EXEC 05 \u2014 Medal Activity by Classification",
     "EXEC 06 \u2014 Team vs Individual Medal Activity",
     "EXEC 07 \u2014 Medal Activity by Difficulty",
@@ -10,25 +14,21 @@
     "EXP 02 \u2014 Medal Ranking",
     "EXP 03 \u2014 Medal Classification Mix",
     "EXP 04 \u2014 Medal Difficulty Mix",
+    "EXP 05 \u2014 Player Medal Leaderboard",
+    "EXP 06 \u2014 Player / Medal Detail",
     "KPI 01 \u2014 Matches with Player Data",
     "KPI 02 \u2014 Unique Players",
     "KPI 03 \u2014 Total Kills",
     "KPI 04 \u2014 Overall K/D",
     "KPI 05 \u2014 Player Win Rate",
-    "KPI 06 \u2014 Medals Awarded",
-    "EXEC 01 \u2014 Matches Over Time",
-    "EXEC 02 \u2014 Combat Performance Trend",
-    "EXEC 03 \u2014 Top Established Players",
-    "EXEC 04 \u2014 Top Medal Distribution",
-    "EXP 05 \u2014 Player Medal Leaderboard",
-    "EXP 06 \u2014 Player / Medal Detail"
+    "KPI 06 \u2014 Medals Awarded"
   ],
   "dashboards": [
     "Dashboard 1",
-    "Story 1",
     "EXECUTIVE DASHBOARD \u2014 Halo Performance",
     "Halo Multiplayer Performance: Executive Overview",
-    "Halo Player & Medal Explorer"
+    "Halo Player and Medal Explorer",
+    "Story 1"
   ],
   "failures": [],
   "status": "PASS"

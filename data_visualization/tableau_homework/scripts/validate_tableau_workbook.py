@@ -22,7 +22,7 @@ REQUIRED_WORKSHEETS=[
 "KPI 01 — Matches with Player Data","KPI 02 — Unique Players","KPI 03 — Total Kills","KPI 04 — Overall K/D","KPI 05 — Player Win Rate","KPI 06 — Medals Awarded",
 "EXEC 01 — Matches Over Time","EXEC 02 — Combat Performance Trend","EXEC 03 — Top Established Players","EXEC 04 — Top Medal Distribution",
 "EXP 01 — Medal Volume Over Time","EXP 02 — Medal Ranking","EXP 03 — Medal Classification Mix","EXP 04 — Medal Difficulty Mix","EXP 05 — Player Medal Leaderboard","EXP 06 — Player / Medal Detail"]
-REQUIRED_DASHBOARDS=["Halo Multiplayer Performance: Executive Overview","Halo Player & Medal Explorer"]
+REQUIRED_DASHBOARDS=["Halo Multiplayer Performance: Executive Overview","Halo Player and Medal Explorer"]
 SOURCE_TOKENS=["executive_kpis.csv","executive_daily_performance.csv","executive_player_performance.csv","exploratory_medal_summary.csv","exploratory_daily_player_medals.csv"]
 
 def load_xml(path: Path):

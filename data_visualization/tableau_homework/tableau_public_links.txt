@@ -1,0 +1,8 @@
+DataExpert Boot Camp — Week 7 Tableau Public Dashboards
+Author: Ceasar Jackson
+
+Executive Dashboard:
+https://public.tableau.com/views/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605/HaloMultiplayerPerformanceExecutiveOverview
+
+Exploratory Dashboard:
+https://public.tableau.com/views/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605/HaloPlayerMedalExplorer

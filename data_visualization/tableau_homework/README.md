@@ -24,12 +24,22 @@ prepared in this workspace.
 The planned Tableau deliverables are:
 
 - **Halo Multiplayer Performance: Executive Overview**
-- **Halo Player & Medal Explorer**
+- **Halo Player and Medal Explorer**
 
 The detailed worksheet, filter, dashboard-action, layout, and formatting
 specification is maintained in:
 
 `docs/TABLEAU_DASHBOARD_BLUEPRINT.md`
+
+## Tableau Public Dashboards
+
+The completed dashboards are published on Tableau Public:
+
+- **Halo Multiplayer Performance: Executive Overview**
+  https://public.tableau.com/views/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605/HaloMultiplayerPerformanceExecutiveOverview
+
+- **Halo Player and Medal Explorer**
+  https://public.tableau.com/views/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605/HaloPlayerMedalExplorer
 
 ## Source Data
 
@@ -160,7 +170,7 @@ Recommended structure:
 
 ## Exploratory Dashboard
 
-### Halo Player & Medal Explorer
+### Halo Player and Medal Explorer
 
 Audience:
 

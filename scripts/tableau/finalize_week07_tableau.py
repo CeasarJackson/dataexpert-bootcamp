@@ -31,7 +31,7 @@ MEDAL_SUMMARY = "federated.1vy04sp10qrx3o1erb2c11t1zcv0"
 MEDALS = "federated.1mg9f830ivlerq1h7h3l01kcjv03"
 
 EXEC_DASH = "Halo Multiplayer Performance: Executive Overview"
-EXP_DASH = "Halo Player & Medal Explorer"
+EXP_DASH = "Halo Player and Medal Explorer"
 
 
 def die(msg: str) -> None:
@@ -313,7 +313,7 @@ def main() -> None:
     dashboards = (
         dashboard(EXEC_DASH, "Halo Multiplayer Performance — Executive Overview", exec_sheets)
         + "\n"
-        + dashboard(EXP_DASH, "Halo Player &amp; Medal Explorer", exp_sheets)
+        + dashboard(EXP_DASH, "Halo Player and Medal Explorer", exp_sheets)
     )
 
     if "  </dashboards>" not in text:
