@@ -1,0 +1,43 @@
+# =============================================================================
+# DataExpert Boot Camp — Tableau Homework
+# Local / generated artifact policy
+# =============================================================================
+#
+# Large analytical datasets are retained locally for Tableau development and
+# reproducibility checks but are intentionally excluded from ordinary Git
+# history.
+#
+# Compact executive datasets, documentation, validation summaries, scripts,
+# SQL, and final grader-facing artifacts remain eligible for version control.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Large prepared analytical datasets
+# ---------------------------------------------------------------------------
+
+data/prepared/tableau_player_match_performance.csv
+data/prepared/tableau_player_medal_performance.csv
+data/prepared/exploratory_daily_player_medals.csv
+
+# ---------------------------------------------------------------------------
+# Tableau-generated transient files
+# ---------------------------------------------------------------------------
+
+*.hyper
+*.log
+*.tmp
+*.bak
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# Python transient files
+# ---------------------------------------------------------------------------
+
+__pycache__/
+*.py[cod]
+
+# ---------------------------------------------------------------------------
+# Local validation logs
+# ---------------------------------------------------------------------------
+
+validation/logs/

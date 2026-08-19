@@ -1,0 +1,42 @@
+Data Visualization / Tableau Homework
+Phase 2B — Source Data Profile
+========================================================================
+
+ROW COUNTS
+match_details: 151,761
+matches: 24,025
+medals: 183
+medals_matches_players: 755,229
+
+CARDINALITIES
+matches: 24,025
+players: 69,420
+maps: 25
+playlists: 27
+game_variants: 12
+teams: 8
+medal_ids_dimension: 183
+medal_ids_fact: 142
+
+GRAIN CHECKS
+matches_duplicate_match_id: 0
+match_details_duplicate_match_player: 0
+mmp_duplicate_match_player_medal: 0
+medals_duplicate_medal_id: 0
+
+JOIN COVERAGE
+match_details distinct match_ids: 19,050
+match_details match_ids absent from matches: 0
+mmp distinct match_ids: 18,942
+mmp match_ids absent from matches: 0
+mmp distinct medal_ids: 142
+mmp medal_ids absent from medals: 0
+
+MEDAL METADATA
+named_medals: 181/183
+classified_medals: 181/183
+difficulty_present: 181/183
+
+DATE RANGE
+minimum: 2015-10-27 00:00:00
+maximum: 2016-09-28 00:00:00

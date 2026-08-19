@@ -1,0 +1,22 @@
+DataExpert Boot Camp — Tableau Dataset Summary
+========================================================================
+
+PLAYER-MATCH DATASET
+rows: 151,761
+grain: match_id + player_gamertag
+
+PLAYER-MEDAL DATASET
+rows: 755,229
+grain: match_id + player_gamertag + medal_id
+
+CARDINALITIES
+players: 69,420
+matches with player details: 19,050
+medal names: 130
+
+EXECUTIVE KPI TOTALS
+kills: 1,350,442
+deaths: 1,368,392
+assists: 446,286
+winning player rows: 72,798
+medals awarded: 1,560,446

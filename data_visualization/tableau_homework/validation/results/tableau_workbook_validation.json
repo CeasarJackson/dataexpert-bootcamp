@@ -1,0 +1,33 @@
+{
+  "workbook": "/Users/ceasarjackson/Projects/job-prep/dataexpert_bootcamp/data_visualization/tableau_homework/tableau/CeasarJackson_DataExpert_Tableau_Homework.twb",
+  "worksheets": [
+    "Sheet 1",
+    "Sheet 2",
+    "Sheet 3",
+    "Sheet 4",
+    "Sheet 5",
+    "Sheet 6"
+  ],
+  "dashboards": [],
+  "failures": [
+    "missing worksheet: KPI 01 \u2014 Matches with Player Data",
+    "missing worksheet: KPI 02 \u2014 Unique Players",
+    "missing worksheet: KPI 03 \u2014 Total Kills",
+    "missing worksheet: KPI 04 \u2014 Overall K/D",
+    "missing worksheet: KPI 05 \u2014 Player Win Rate",
+    "missing worksheet: KPI 06 \u2014 Medals Awarded",
+    "missing worksheet: EXEC 01 \u2014 Matches Over Time",
+    "missing worksheet: EXEC 02 \u2014 Combat Performance Trend",
+    "missing worksheet: EXEC 03 \u2014 Top Established Players",
+    "missing worksheet: EXEC 04 \u2014 Top Medal Distribution",
+    "missing worksheet: EXP 01 \u2014 Medal Volume Over Time",
+    "missing worksheet: EXP 02 \u2014 Medal Ranking",
+    "missing worksheet: EXP 03 \u2014 Medal Classification Mix",
+    "missing worksheet: EXP 04 \u2014 Medal Difficulty Mix",
+    "missing worksheet: EXP 05 \u2014 Player Medal Leaderboard",
+    "missing worksheet: EXP 06 \u2014 Player / Medal Detail",
+    "missing dashboard: Halo Multiplayer Performance: Executive Overview",
+    "missing dashboard: Halo Player & Medal Explorer"
+  ],
+  "status": "FAIL"
+}
