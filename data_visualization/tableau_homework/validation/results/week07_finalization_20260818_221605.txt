@@ -1,0 +1,9 @@
+WEEK 07 TABLEAU FINALIZATION
+Source: data_visualization/tableau_homework/tableau/CeasarJackson_DataExpert_Tableau_Homework_AUTOMATED_20260818_204557.twb
+Source SHA256: a0d7c8e08311a7b8bff492394e522a905f24b2ed473b6b4cc3f1576a607342ea
+Final: data_visualization/tableau_homework/tableau/CeasarJackson_DataExpert_Tableau_Homework_FINAL_20260818_221605.twb
+Final SHA256: 46fdddf89a5aae3a0151d69b60042c2099f0ff5efa1214a542eccdad11702c05
+Executive Dashboard: Halo Multiplayer Performance: Executive Overview
+Exploratory Dashboard: Halo Player & Medal Explorer
+Source Modified: NO
+XML Status: PASS
