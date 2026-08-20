@@ -63,7 +63,7 @@ DEFAULT_SOURCE = Path(
     "CeasarJackson_DataExpert_Tableau_Homework.twb"
 )
 
-EXPECTED_BRANCH = "feature/data-visualization-tableau"
+EXPECTED_BRANCH = "improve/week07-post-grade-hardening"
 
 EXPECTED_SOURCE_SHA256 = (
     "5d5b55c03dc4b8518ccf057e3e4e945778b846669089c5a1471586fdeab9b9f0"
@@ -72,7 +72,7 @@ EXPECTED_SOURCE_SHA256 = (
 DASHBOARD_NAME = "EXECUTIVE DASHBOARD — Halo Performance"
 
 SOURCE_PLAYER_COMBAT_SHEET = "EXEC 0 — Player Combat Performance"
-CANDIDATE_PLAYER_COMBAT_SHEET = "EXEC 00 — Player Combat Performance"
+CANDIDATE_PLAYER_COMBAT_SHEET = "EXEC-00 — Player Combat Performance"
 
 CHECKPOINT_DIR = Path(
     "data_visualization/tableau_homework/validation/checkpoints"
